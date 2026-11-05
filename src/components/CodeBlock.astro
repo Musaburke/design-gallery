@@ -1,0 +1,68 @@
+---
+import { Code } from 'astro:components';
+import { sourceOf, langOf, labelOf } from '../lib/demos';
+
+interface Props { file: string; open?: boolean }
+const { file, open = false } = Astro.props;
+const code = sourceOf(file).trimEnd();
+const lang = langOf(file);
+const lines = code.split('\n').length;
+---
+<details class="file" open={open}>
+  <summary>
+    <svg class="chev" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 4l4 4-4 4" /></svg>
+    <span class="path" translate="no">src/{file}</span>
+    <span class="pill">{labelOf(lang)}</span>
+    <span class="lines">{lines} lines</span>
+  </summary>
+  <div class="body">
+    <button class="copy press" type="button" data-copy aria-live="polite">Copy</button>
+    <Code code={code} lang={lang as 'astro'} theme="vesper" />
+  </div>
+</details>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((btn) => {
+    let timer = 0;
+    btn.addEventListener('click', async () => {
+      const text = btn.parentElement?.querySelector('pre')?.textContent ?? '';
+      try {
+        await navigator.clipboard.writeText(text);
+        btn.textContent = 'Copied';
+      } catch {
+        btn.textContent = 'Copy failed';
+      }
+      clearTimeout(timer);
+      timer = window.setTimeout(() => (btn.textContent = 'Copy'), 1600);
+    });
+  });
+</script>
+
+<style>
+  .file { background: var(--surface); border-radius: 6px; }
+  .file + :global(.file) { margin-top: 0.5rem; }
+  summary {
+    display: flex; align-items: center; gap: 0.75rem; padding: 0.875rem 1rem;
+    cursor: pointer; list-style: none; border-radius: 6px;
+  }
+  summary::-webkit-details-marker { display: none; }
+  .chev { width: 1rem; height: 1rem; flex: none; fill: none; stroke: var(--muted); stroke-width: 1.6; transition: transform 200ms var(--ease-out); }
+  .file[open] .chev { transform: rotate(90deg); }
+  .path { font-family: var(--mono); font-size: var(--t-meta); overflow-wrap: anywhere; }
+  .lines { margin-left: auto; color: var(--muted); font-size: var(--t-meta); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .body { position: relative; padding: 0 0.5rem 0.5rem; }
+  .body :global(pre) {
+    max-height: 34rem; overflow: auto; padding: 1rem 1.125rem; border-radius: 4px;
+    font-size: 0.8125rem; line-height: 1.6; tab-size: 2;
+  }
+  .copy {
+    position: absolute; top: 0.625rem; right: 1.25rem; z-index: 1;
+    height: 1.875rem; padding-inline: 0.75rem; border-radius: 999px;
+    background: var(--surface-2); color: var(--ink); font: inherit; font-size: var(--t-meta); cursor: pointer;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    summary:hover .path { color: var(--accent); }
+    .copy:hover { background: #2a2a2a; }
+  }
+  @media (prefers-reduced-motion: reduce) { .chev { transition: none; } }
+</style>

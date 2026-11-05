@@ -1,0 +1,25 @@
+---
+// Wireframe globe that fills its parent. Three.js loads only once the frame
+// scrolls into view, so it never competes with first paint.
+---
+<canvas class="globe" data-globe aria-hidden="true"></canvas>
+
+<style>
+  .globe {
+    position: absolute; left: 50%; top: 50%;
+    height: 112%; width: auto; max-width: none; aspect-ratio: 1;
+    transform: translate(-50%, -50%);
+    pointer-events: none; opacity: 0.8;
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLCanvasElement>('[data-globe]').forEach((canvas) => {
+    const io = new IntersectionObserver(([e]) => {
+      if (!e?.isIntersecting) return;
+      io.disconnect();
+      import('./globe').then((m) => m.mountGlobe(canvas));
+    }, { rootMargin: '200px' });
+    io.observe(canvas);
+  });
+</script>

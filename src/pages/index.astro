@@ -1,0 +1,54 @@
+---
+import Base from '../layouts/Base.astro';
+import Card from '../components/Card.astro';
+import { components } from '../data/components';
+
+const backgrounds = components.filter((c) => c.group === 'Backgrounds');
+const motion = components.filter((c) => c.group === 'Motion');
+---
+<Base title="Design gallery">
+  <div class="wrap">
+    <div class="intro">
+      <h1>Components</h1>
+      <p>Backgrounds and effects from my sites, running live. Open one for its code and where it came from.</p>
+    </div>
+
+    <section id="backgrounds" aria-labelledby="h-bg">
+      <h2 id="h-bg">Backgrounds <span>{backgrounds.length}</span></h2>
+      <div class="grid two">
+        {backgrounds.map((item) => <Card item={item} />)}
+      </div>
+    </section>
+
+    <section id="motion" aria-labelledby="h-motion">
+      <h2 id="h-motion">Motion and effects <span>{motion.length}</span></h2>
+      <div class="grid mixed">
+        {motion.map((item) => <Card item={item} />)}
+      </div>
+    </section>
+  </div>
+</Base>
+
+<style>
+  .intro { padding-block: 2.5rem 3.5rem; max-width: 40rem; }
+  h1 { font-size: var(--t-page); }
+  .intro p { margin-top: 0.5rem; color: var(--muted); }
+  section { scroll-margin-top: 1.5rem; padding-bottom: 5rem; }
+  h2 { font-size: var(--t-title); margin-bottom: 1.25rem; }
+  h2 span { color: var(--muted); font-variant-numeric: tabular-nums; margin-left: 0.25rem; }
+  .grid { display: grid; gap: 2.5rem 1.25rem; }
+  .two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  /* Five cards: three across, then two wider ones, so no row ends ragged. */
+  .mixed { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .mixed > :global(*) { grid-column: span 2; }
+  .mixed > :global(*:nth-child(n + 4)) { grid-column: span 3; }
+  @media (max-width: 900px) {
+    .mixed { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .mixed > :global(*), .mixed > :global(*:nth-child(n + 4)) { grid-column: span 1; }
+    .mixed > :global(*:last-child) { grid-column: span 2; }
+  }
+  @media (max-width: 640px) {
+    .two, .mixed { grid-template-columns: minmax(0, 1fr); }
+    .mixed > :global(*), .mixed > :global(*:last-child) { grid-column: span 1; }
+  }
+</style>

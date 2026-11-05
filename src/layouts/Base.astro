@@ -1,0 +1,55 @@
+---
+import '../styles/global.css';
+import { components } from '../data/components';
+
+interface Props { title: string; description?: string }
+const { title, description = 'Every background and effect from my sites, live, with the code.' } = Astro.props;
+const count = (group: string) => components.filter((c) => c.group === group).length;
+const path = Astro.url.pathname;
+---
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <meta name="theme-color" content="#0c0c0c" />
+    <meta name="description" content={description} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preload" href="/fonts/clash-grotesk-400.woff2" as="font" type="font/woff2" crossorigin />
+    <title>{title}</title>
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <header class="bar wrap">
+      <a class="brand" href="/" aria-current={path === '/' ? 'page' : undefined}>
+        <svg class="mark" viewBox="0 0 24 24" aria-hidden="true">
+          <rect x="2" y="2" width="9" height="9" rx="1.5" fill="currentColor" opacity="0.35" />
+          <rect x="13" y="2" width="9" height="9" rx="1.5" fill="var(--accent)" />
+          <rect x="2" y="13" width="9" height="9" rx="1.5" fill="currentColor" opacity="0.35" />
+          <rect x="13" y="13" width="9" height="9" rx="1.5" fill="currentColor" opacity="0.35" />
+        </svg>
+        Design gallery
+      </a>
+      <nav aria-label="Groups">
+        <a href="/#backgrounds">Backgrounds <span>{count('Backgrounds')}</span></a>
+        <a href="/#motion">Motion <span>{count('Motion')}</span></a>
+      </nav>
+    </header>
+    <main id="main">
+      <slot />
+    </main>
+  </body>
+</html>
+
+<style>
+  .skip { position: absolute; left: var(--margin); top: -3rem; padding: 0.5rem 0.75rem; background: var(--ink); color: var(--bg); border-radius: 4px; z-index: 10; }
+  .skip:focus { top: 0.75rem; }
+  .bar { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; height: 4.5rem; }
+  .brand { display: inline-flex; align-items: center; gap: 0.625rem; font-weight: 500; }
+  .mark { width: 1.25rem; height: 1.25rem; color: var(--ink); }
+  nav { display: flex; gap: 1.5rem; color: var(--muted); }
+  nav a { transition: color 160ms ease; }
+  nav span { margin-left: 0.25rem; font-variant-numeric: tabular-nums; opacity: 0.7; }
+  @media (hover: hover) and (pointer: fine) { nav a:hover { color: var(--ink); } }
+</style>

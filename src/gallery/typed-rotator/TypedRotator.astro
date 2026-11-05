@@ -1,0 +1,67 @@
+---
+// Types a phrase, holds, deletes, types the next, with a blinking caret.
+// The full sentence is in the DOM for screen readers and for no-JS visitors.
+// Reduced motion: the first phrase stays put.
+interface Props { prefix?: string; words?: string[] }
+const { prefix = 'I build', words = ['fast websites.', 'smooth motion.', 'clean interfaces.'] } = Astro.props;
+---
+<div class="rotator-wrap">
+  <p class="big" aria-hidden="true">{prefix} <span class="role" data-rotator data-words={JSON.stringify(words)}>{words[0]}</span><span class="caret"></span></p>
+  <p class="visually-hidden">{prefix} {words.join(', ')}</p>
+</div>
+
+<style>
+  .rotator-wrap {
+    --rot-accent: #9fd09c;
+    position: absolute; inset: 0; display: grid; place-items: center; padding: 1.5rem;
+    container-type: size; color: #f1f1ef; text-align: center;
+  }
+  .big { font-size: clamp(1.75rem, 7cqi, 4.5rem); line-height: 1.04; letter-spacing: -0.04em; }
+  .role { white-space: nowrap; color: var(--rot-accent); }
+  .caret {
+    display: inline-block; width: 0.06em; height: 0.85em; margin-left: 0.06em;
+    background: var(--rot-accent); vertical-align: -0.05em;
+    animation: blink 1s steps(1) infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) { .caret { animation: none; } }
+</style>
+
+<script>
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Types a phrase, holds, deletes, types the next. Words come from data-words (JSON array).
+  // Runs only while the element is on screen.
+  function initRotator(el: HTMLElement) {
+    const words: string[] = JSON.parse(el.dataset.words ?? '[]');
+    if (!words.length || reduce) return;
+    let w = 0, c = words[0].length, deleting = false;
+    let timer = 0, running = false;
+    const next = (ms: number) => { timer = window.setTimeout(tick, ms); };
+    const tick = () => {
+      const word = words[w];
+      if (!deleting) {
+        c++;
+        el.textContent = word.slice(0, c);
+        if (c >= word.length) { deleting = true; return next(2200); }
+        return next(55 + Math.random() * 45);
+      }
+      c--;
+      el.textContent = word.slice(0, c);
+      if (c <= 0) { deleting = false; w = (w + 1) % words.length; return next(350); }
+      next(28);
+    };
+    new IntersectionObserver(([e]) => {
+      if (e?.isIntersecting && !running) {
+        running = true;
+        // Start by deleting the current phrase after a pause, so it opens on a full sentence.
+        timer = window.setTimeout(() => { deleting = true; tick(); }, 1600);
+      } else if (!e?.isIntersecting && running) {
+        running = false;
+        clearTimeout(timer);
+      }
+    }).observe(el);
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-rotator]').forEach(initRotator);
+</script>

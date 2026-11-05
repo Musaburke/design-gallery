@@ -1,0 +1,82 @@
+---
+// A scrolling box of sample content: headings rise in word by word,
+// blocks stagger in child by child, once each, as they enter.
+// On a real page, call initReveals(document.body) and drop the scroll box.
+---
+<div class="reveal" data-reveal-root>
+  <div class="scroller" tabindex="0" aria-label="Scroll reveal demo">
+    <h3 data-split>Things appear as you scroll</h3>
+    <div class="blocks" data-reveal>
+      <p>Each child rises 24px and fades in.</p>
+      <p>The next one waits 80ms.</p>
+      <p>Then the next.</p>
+    </div>
+    <h3 data-split>Headings rise word by word</h3>
+    <div class="tiles" data-reveal>
+      <div></div><div></div><div></div><div></div>
+    </div>
+    <h3 data-split>Once each, never again</h3>
+    <div class="blocks" data-reveal>
+      <p>Content stays visible if the script never runs.</p>
+      <p>Reduced motion shows it all straight away.</p>
+    </div>
+  </div>
+  <button class="replay" type="button">Replay</button>
+</div>
+
+<style>
+  .reveal {
+    --rv-ink: #f1f1ef; --rv-soft: #b4b5af; --rv-tile: #262626; --rv-accent: #9fd09c;
+    --rv-ease: cubic-bezier(0.23, 1, 0.32, 1);
+    position: absolute; inset: 0; color: var(--rv-ink);
+  }
+  .scroller { height: 100%; overflow-y: auto; padding: 1.5rem 1.5rem 40%; }
+  h3 { font-size: 1.75rem; font-weight: 400; letter-spacing: -0.03em; line-height: 1.05; margin: 0 0 1rem; }
+  .blocks, .tiles { margin-bottom: 4.5rem; }
+  .blocks p { color: var(--rv-soft); margin: 0 0 0.375rem; }
+  .tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; }
+  .tiles div { aspect-ratio: 1; background: var(--rv-tile); border-radius: 4px; }
+  .tiles div:first-child { background: var(--rv-accent); }
+
+  /* Blocks: each child rises in, staggered. */
+  .armed [data-reveal] > * {
+    opacity: 0; transform: translateY(24px);
+    transition: opacity 700ms var(--rv-ease), transform 700ms var(--rv-ease);
+  }
+  .armed [data-reveal].in > * { opacity: 1; transform: none; }
+  .armed [data-reveal].in > *:nth-child(2) { transition-delay: 80ms; }
+  .armed [data-reveal].in > *:nth-child(3) { transition-delay: 160ms; }
+  .armed [data-reveal].in > *:nth-child(4) { transition-delay: 240ms; }
+
+  /* Headings: reveal.ts wraps each word; words rise in one after another. */
+  .armed [data-split] :global(.w) { display: inline-block; overflow: hidden; vertical-align: bottom; padding-bottom: 0.08em; margin-bottom: -0.08em; }
+  .armed [data-split] :global(.w > span) {
+    display: inline-block;
+    transform: translateY(105%);
+    transition: transform 800ms var(--rv-ease);
+    transition-delay: calc(var(--i, 0) * 45ms);
+  }
+  .armed [data-split].in :global(.w > span) { transform: none; }
+
+  .replay {
+    position: absolute; right: 0.75rem; bottom: 0.75rem;
+    height: 2rem; padding-inline: 0.875rem; border-radius: 999px;
+    background: rgb(255 255 255 / 0.08); color: var(--rv-ink); font: inherit; font-size: 0.8125rem;
+    cursor: pointer; transition: transform 160ms var(--rv-ease), background-color 160ms ease;
+  }
+  .replay:hover { background: rgb(255 255 255 / 0.14); }
+  .replay:active { transform: scale(0.97); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .armed [data-reveal] > *, .armed [data-split] :global(.w > span) { opacity: 1; transform: none; transition: none; }
+  }
+</style>
+
+<script>
+  import { initReveals } from './reveal';
+  document.querySelectorAll<HTMLElement>('[data-reveal-root]').forEach((root) => {
+    const scroller = root.querySelector<HTMLElement>('.scroller');
+    const replay = initReveals(root, scroller);
+    root.querySelector('.replay')?.addEventListener('click', replay);
+  });
+</script>

@@ -1,0 +1,76 @@
+@import 'tailwindcss';
+
+/* Clash Grotesk (Fontshare, free licence), self-hosted, same files as the portfolio. */
+@font-face { font-family: 'Clash Grotesk'; src: url('/fonts/clash-grotesk-400.woff2') format('woff2'); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Clash Grotesk'; src: url('/fonts/clash-grotesk-500.woff2') format('woff2'); font-weight: 500; font-style: normal; font-display: swap; }
+
+/* Quiet dark: the chrome stays out of the way so the components are the loud part.
+   One ground, one ink, one accent. Tokens only below this block. */
+:root {
+  --bg: #0c0c0c;
+  --surface: #151515;
+  --surface-2: #1d1d1d;
+  --line: #242424;
+  --ink: #ededea;
+  --muted: #9d9d97;
+  --accent: #9fd09c;
+
+  --font: 'Clash Grotesk', ui-sans-serif, system-ui, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+  --t-meta: 0.8125rem;   /* 13px: labels, origins */
+  --t-body: 1rem;        /* 16px: running text */
+  --t-title: 1.5rem;     /* 24px: page and card titles */
+  --t-page: 2rem;        /* 32px: detail page name */
+
+  --margin: clamp(1rem, 0.4rem + 2.4vw, 2rem);
+  --max: 90rem;
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font);
+    -webkit-font-smoothing: antialiased;
+  }
+  body { font-size: var(--t-body); line-height: 1.55; min-height: 100svh; }
+  h1, h2, h3 { font-weight: 500; letter-spacing: -0.02em; line-height: 1.1; text-wrap: balance; }
+  p { text-wrap: pretty; }
+  a { color: inherit; text-decoration: none; }
+  a, button, summary { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+  * { scrollbar-width: thin; scrollbar-color: #3a3a3a transparent; }
+  input, textarea { caret-color: var(--accent); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  ::selection { background: var(--accent); color: var(--bg); }
+}
+
+.wrap { width: 100%; max-width: var(--max); margin-inline: auto; padding-inline: var(--margin); }
+
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+/* Every live demo sits in a frame painted with its own site's ground. */
+.frame {
+  position: relative; overflow: hidden; isolation: isolate;
+  background: var(--ground, var(--surface));
+  border-radius: 6px;
+}
+
+/* Small flat pill beside a value (file language, dependency). */
+.pill {
+  display: inline-flex; align-items: center; height: 1.375rem; padding-inline: 0.5rem;
+  border-radius: 999px; background: var(--surface-2); color: var(--muted);
+  font-size: 0.75rem; line-height: 1;
+}
+
+.press { transition: transform 160ms var(--ease-out), background-color 160ms ease, color 160ms ease; }
+.press:active { transform: scale(0.97); }
+
+@media (prefers-reduced-motion: reduce) {
+  * { scroll-behavior: auto !important; }
+  .press:active { transform: none; }
+}
