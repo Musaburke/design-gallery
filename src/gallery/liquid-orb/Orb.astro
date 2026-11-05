@@ -1,0 +1,25 @@
+---
+// Liquid orb, centred in its parent. Three.js loads only once the frame
+// scrolls into view. Hover it to fade in the wireframe twin.
+---
+<canvas class="orb" data-orb aria-hidden="true"></canvas>
+
+<style>
+  .orb {
+    position: absolute; left: 50%; top: 50%;
+    height: 92%; max-width: 92%; aspect-ratio: 1;
+    transform: translate(-50%, -50%);
+    cursor: crosshair;
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLCanvasElement>('[data-orb]').forEach((canvas) => {
+    const io = new IntersectionObserver(([e]) => {
+      if (!e?.isIntersecting) return;
+      io.disconnect();
+      import('./orb').then((m) => m.mountOrb(canvas));
+    }, { rootMargin: '200px' });
+    io.observe(canvas);
+  });
+</script>

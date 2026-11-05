@@ -1,0 +1,102 @@
+---
+// Intro: a name + liquid blob (three dots melted together by an SVG goo filter),
+// then a curtain wipes up to show what's underneath.
+// On a real site it covers the page once per session and never runs longer than 2 s.
+// Here it plays inside its parent on a loop while in view, with a replay button.
+interface Props { name?: string }
+const { name = 'Your name' } = Astro.props;
+const id = `goo-${Math.random().toString(36).slice(2, 8)}`;
+---
+<div class="intro" data-preloader>
+  <p class="under">{name}</p>
+  <div class="preloader" aria-hidden="true">
+    <svg class="defs" width="0" height="0">
+      <filter id={id}>
+        <feGaussianBlur in="SourceGraphic" stdDeviation="7" result="b" />
+        <feColorMatrix in="b" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -8" />
+      </filter>
+    </svg>
+    <p class="name">{name}</p>
+    <div class="blob" style={`filter: url(#${id})`}>
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+  <button class="replay" type="button">Replay</button>
+</div>
+
+<style>
+  .intro {
+    --pl-bg: #1c1c1c; --pl-ink: #f1f1ef; --pl-accent: #9fd09c;
+    --pl-ease: cubic-bezier(0.23, 1, 0.32, 1);
+    position: absolute; inset: 0; display: grid; place-items: center;
+    container-type: size; color: var(--pl-ink);
+  }
+  .under { font-size: clamp(1.5rem, 4cqi, 2.75rem); letter-spacing: -0.03em; }
+  .preloader {
+    position: absolute; inset: 0; z-index: 1;
+    display: grid; place-items: center; align-content: center; gap: 2.25rem;
+    background: var(--pl-bg);
+    clip-path: inset(0 0 0 0);
+    transition: clip-path 750ms cubic-bezier(0.77, 0, 0.175, 1);
+  }
+  .intro.leaving .preloader { clip-path: inset(0 0 100% 0); }
+  .intro.reset .preloader { transition: none; }
+  .defs { position: absolute; }
+  .name { font-size: clamp(1.5rem, 4cqi, 2.75rem); letter-spacing: -0.03em; animation: rise 700ms var(--pl-ease) both; }
+  .intro.reset .name { animation: none; }
+  .blob { position: relative; width: 64px; height: 64px; }
+  .blob span {
+    position: absolute; left: 50%; top: 50%;
+    width: 22px; height: 22px; margin: -11px 0 0 -11px; border-radius: 50%;
+    background: var(--pl-accent);
+    animation: orbit 1.4s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+  }
+  .blob span:nth-child(2) { width: 16px; height: 16px; margin: -8px 0 0 -8px; animation-delay: -0.45s; background: var(--pl-ink); }
+  .blob span:nth-child(3) { width: 12px; height: 12px; margin: -6px 0 0 -6px; animation-delay: -0.9s; }
+  .replay {
+    position: absolute; right: 0.75rem; bottom: 0.75rem; z-index: 2;
+    height: 2rem; padding-inline: 0.875rem; border-radius: 999px;
+    background: rgb(255 255 255 / 0.08); color: var(--pl-ink); font: inherit; font-size: 0.8125rem;
+    cursor: pointer; transition: transform 160ms var(--pl-ease), background-color 160ms ease;
+  }
+  .replay:hover { background: rgb(255 255 255 / 0.14); }
+  .replay:active { transform: scale(0.97); }
+  @keyframes orbit {
+    0%   { transform: rotate(0deg) translateX(14px) rotate(0deg); }
+    50%  { transform: rotate(180deg) translateX(2px) rotate(-180deg); }
+    100% { transform: rotate(360deg) translateX(14px) rotate(-360deg); }
+  }
+  @keyframes rise { from { opacity: 0; transform: translateY(14px); } }
+  @media (prefers-reduced-motion: reduce) {
+    .blob span, .name { animation: none; }
+    .preloader { transition: none; }
+  }
+</style>
+
+<script>
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  document.querySelectorAll<HTMLElement>('[data-preloader]').forEach((root) => {
+    let timers: number[] = [];
+    let visible = false;
+    const clear = () => { timers.forEach(clearTimeout); timers = []; };
+
+    // Show the loader, hold, wipe up, rest on what's underneath, then go again.
+    const play = () => {
+      clear();
+      root.classList.add('reset');
+      root.classList.remove('leaving');
+      void root.offsetWidth; // restart the name's rise
+      root.classList.remove('reset');
+      if (reduce) return;
+      timers.push(window.setTimeout(() => root.classList.add('leaving'), 1400));
+      timers.push(window.setTimeout(() => { if (visible) play(); }, 4200));
+    };
+
+    root.querySelector('button')?.addEventListener('click', play);
+    new IntersectionObserver(([e]) => {
+      visible = !!e?.isIntersecting;
+      if (visible) play(); else clear();
+    }).observe(root);
+  });
+</script>
