@@ -1,0 +1,24 @@
+---
+// Screenshots in a browser window at one fixed ratio (16/10, the shape of a 1440x900
+// capture), so they never crop or sit at mixed sizes. Windows in a row share their top
+// edge and width. Inside a link the window lifts with a coloured ring on hover and focus.
+// Placeholder pages: put the real capture in the frame's .view as an <img>.
+import Frame from './Frame.astro';
+---
+<div class="frames">
+  <a class="item" href="#" onclick="return false" aria-label="Northwind, sample screenshot"><Frame host="northwind.example · sample data" tone="#3b6e5b" /></a>
+  <a class="item" href="#" onclick="return false" aria-label="Lumen, sample screenshot"><Frame host="lumen.example · sample data" tone="#c96f4a" /></a>
+</div>
+
+<style>
+  .frames {
+    position: absolute; inset: 0; container-type: size;
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4cqw;
+    align-items: start; align-content: center; padding: 0 7cqw;
+  }
+  .item { display: block; border-radius: 10px; }
+  .item:focus-visible { outline: none; }
+  @container (max-width: 520px) and (min-height: 520px) {
+    .frames { grid-template-columns: minmax(0, 1fr); gap: 1.5rem; }
+  }
+</style>
