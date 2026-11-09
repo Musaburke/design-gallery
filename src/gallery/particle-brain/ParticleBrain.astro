@@ -1,0 +1,70 @@
+---
+// A dense particle sphere with a network of lines through it. It morphs into a spiral
+// galaxy and back, speeds up and swells with activity, and parts around the cursor.
+// Three.js loads only once the frame scrolls into view.
+// In a grid card (inside [data-preview]) it morphs between the two shapes on its own.
+---
+<div class="brain" data-brain>
+  <canvas aria-hidden="true"></canvas>
+  <div class="controls" data-controls>
+    <div class="seg" role="group" aria-label="Shape">
+      <button type="button" aria-pressed="true" data-shape="sphere">Sphere</button>
+      <button type="button" aria-pressed="false" data-shape="galaxy">Galaxy</button>
+    </div>
+    <div class="seg" role="group" aria-label="Activity">
+      <button type="button" aria-pressed="true" data-state="idle">Idle</button>
+      <button type="button" aria-pressed="false" data-state="working">Working</button>
+      <button type="button" aria-pressed="false" data-state="speaking">Speaking</button>
+    </div>
+  </div>
+</div>
+
+<style>
+  .brain { position: absolute; inset: 0; container-type: size; }
+  canvas { position: absolute; left: 50%; top: 50%; width: min(118cqh, 100cqw); aspect-ratio: 1; transform: translate(-50%, -50%); }
+  .controls { position: absolute; left: 0; right: 0; bottom: 1rem; display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem; }
+  .seg { display: inline-flex; padding: 0.25rem; border-radius: 999px; background: rgb(20 20 20 / 0.8); }
+  .seg button {
+    height: 2rem; padding: 0 0.875rem; border: 0; border-radius: 999px; cursor: pointer;
+    background: transparent; color: #a3a49f; font: inherit; font-size: 0.8125rem;
+    transition: background-color 160ms ease, color 160ms ease, transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  .seg button[aria-pressed='true'] { background: #2e2e2e; color: #f1f1ef; }
+  .seg button:hover { color: #f1f1ef; }
+  .seg button:active { transform: scale(0.96); }
+  .seg button:focus-visible { outline: 2px solid #9fd09c; outline-offset: 2px; }
+  .auto .controls { display: none; }
+  @media (prefers-reduced-motion: reduce) { .seg button { transition: none; } .seg button:active { transform: none; } }
+</style>
+
+<script>
+  import { playsItself, whenFree } from '../../lib/preview';
+  import type { OrbShape, OrbState } from './brain';
+
+  document.querySelectorAll<HTMLElement>('[data-brain]').forEach((root) => {
+    const canvas = root.querySelector('canvas')!;
+    const io = new IntersectionObserver(([e]) => {
+      if (!e?.isIntersecting) return;
+      io.disconnect();
+      import('./brain').then(({ mountBrain }) => {
+        const brain = mountBrain(canvas, root);
+        if (!brain) return;
+        const press = (attr: string, value: string) =>
+          root.querySelectorAll<HTMLButtonElement>(`[data-${attr}]`).forEach((b) => b.setAttribute('aria-pressed', String(b.dataset[attr] === value)));
+        root.querySelectorAll<HTMLButtonElement>('[data-shape]').forEach((b) => b.addEventListener('click', () => {
+          brain.setShape(b.dataset.shape as OrbShape); press('shape', b.dataset.shape!);
+        }));
+        root.querySelectorAll<HTMLButtonElement>('[data-state]').forEach((b) => b.addEventListener('click', () => {
+          brain.setState(b.dataset.state as OrbState); press('state', b.dataset.state!);
+        }));
+        if (!playsItself(root)) return;
+        // In a card: sphere, then galaxy, then back, every few seconds while it can be seen.
+        root.classList.add('auto');
+        let shape: OrbShape = 'sphere', timer = 0;
+        const flip = () => { shape = shape === 'sphere' ? 'galaxy' : 'sphere'; brain.setShape(shape); timer = window.setTimeout(flip, 6000); };
+        whenFree(root, (free) => { clearTimeout(timer); if (free) timer = window.setTimeout(flip, 4000); });
+      });
+    }, { rootMargin: '200px' });
+    io.observe(canvas);
+  });
+</script>

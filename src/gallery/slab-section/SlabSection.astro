@@ -5,7 +5,7 @@
 // In a grid card (inside [data-preview]) the first section wipes in and out on a loop.
 // No JavaScript or reduced motion: the slabs are simply there.
 // Placeholder products: swap in real names, colours and screenshots.
-import Frame from '../iso-stack/Frame.astro';
+import Frame from '../browser-frame/Frame.astro';
 
 interface Item { name: string; line: string; meta: string; slab: string; tone: string; host: string }
 interface Props { items?: Item[] }
@@ -26,7 +26,6 @@ const {
             <h3>{p.name}</h3>
             <p class="line">{p.line}</p>
             <p class="meta">{p.meta}</p>
-            <a class="btn" href="#" onclick="return false">Read the case study</a>
           </div>
           <div class="media"><Frame tone={p.tone} host={p.host} /></div>
         </div>
@@ -57,14 +56,6 @@ const {
   h3 { margin: 0; font-size: clamp(1.5rem, 6cqw, 3.25rem); font-weight: 500; letter-spacing: -0.03em; line-height: 1.05; }
   .line { margin: 0.75rem 0 0; color: var(--sl-ink); font-size: clamp(0.875rem, 1.9cqw, 1.0625rem); max-width: 34ch; }
   .meta { margin: 0.75rem 0 0; color: var(--sl-soft); font-size: clamp(0.75rem, 1.5cqw, 0.875rem); }
-  .btn {
-    display: inline-flex; align-items: center; margin-top: 1.25rem; height: 2.5rem; padding: 0 1.125rem; border-radius: 999px;
-    background: var(--sl-ink); color: #141414; font-size: 0.875rem; font-weight: 500; text-decoration: none;
-    transition: background-color 160ms ease, transform 160ms var(--sl-ease);
-  }
-  .btn:hover { background: #fff; }
-  .btn:active { transform: scale(0.97); }
-  .btn:focus-visible { outline: 2px solid #9fd09c; outline-offset: 3px; }
 
   /* Narrow boxes: picture above, words below, the slab a band behind the picture. */
   /* Grid cards keep the side-by-side layout, so the name shows next to the picture. */
@@ -73,11 +64,11 @@ const {
     .slabdemo:not(.auto) .text { order: 2; }
     .slabdemo:not(.auto) .slab { top: 10%; bottom: auto; height: 40%; width: 100%; }
   }
-  /* A card is too small for the button. */
-  @container (max-height: 420px) { .btn, .meta { display: none; } }
+  /* A card is too small for the meta line. */
+  @container (max-height: 420px) { .meta { display: none; } }
 
   .auto .scroller { overflow: hidden; }
-  @media (prefers-reduced-motion: reduce) { .slab { transform: none; transition: none; } .btn:active { transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .slab { transform: none; transition: none; } }
 </style>
 
 <script>
