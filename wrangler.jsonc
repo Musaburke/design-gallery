@@ -1,12 +1,8 @@
-// Static site on Cloudflare Workers static assets: no server code.
-// `npm run deploy` checks, builds and uploads dist/. public/_headers still applies.
+// Static site on Cloudflare Pages: plain files from dist/, no server code.
+// `npm run deploy` checks, builds and uploads to https://design-gallery-6kr.pages.dev. public/_headers applies.
 {
 	"$schema": "./node_modules/wrangler/config-schema.json",
 	"name": "design-gallery",
 	"compatibility_date": "2026-11-03",
-	"workers_dev": true,
-	"assets": {
-		"directory": "./dist",
-		"not_found_handling": "404-page"
-	}
+	"pages_build_output_dir": "./dist"
 }
