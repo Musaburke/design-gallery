@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tallbook: lecture notes that revise themselves</title>
+<meta name="description" content="Tallbook turns what you write in lectures into revision cards, and links each idea to where it came up before.">
+<script>document.documentElement.classList.add('js')</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton:wght@400&family=Work+Sans:wght@400;600&display=swap" rel="stylesheet">
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<main id="main">
+
+<!-- HERO: the printed card beside the open notebook -->
+<section class="hero" id="top" aria-labelledby="hero-title">
+  <div class="hero-card">
+    <div class="stripe" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="hero-body">
+      <a class="wordmark" href="#top" data-rise style="--i:0">Tallbook</a>
+      <h1 id="hero-title" class="display" data-rise style="--i:1">Lecture notes that revise themselves</h1>
+      <p class="hero-line" data-rise style="--i:2">Tallbook turns what you write in lectures into revision cards, and links each idea to where it came up before.</p>
+      <div class="hero-actions" data-rise style="--i:3">
+        <a class="button" href="#start">Start a notebook</a>
+        <a class="link" href="#how">See how it works</a>
+      </div>
+      <p class="small hero-print" data-rise style="--i:4">Free for three notebooks. No card needed.</p>
+    </div>
+    <nav class="hero-nav" aria-label="Sections">
+      <a class="link" href="#how">How it works</a>
+      <a class="link" href="#features">Features</a>
+      <a class="link" href="#pricing">Pricing</a>
+      <a class="link" href="#questions">Questions</a>
+    </nav>
+  </div>
+
+  <!-- the room: the app, open on this week's note -->
+  <div class="hero-stage">
+    <div class="app" data-ui aria-label="Tallbook app, open on a Week 6 Algorithms note" role="img">
+      <aside class="app-side">
+        <p class="app-mark"><span class="app-glyph" aria-hidden="true"></span>Tallbook</p>
+        <p class="app-group">Notebooks</p>
+        <ul>
+          <li class="on">Algorithms</li>
+          <li>C++ <span>last term</span></li>
+          <li>Databases</li>
+          <li>Discrete maths</li>
+        </ul>
+        <p class="app-group">Revise</p>
+        <ul>
+          <li>Today <span class="app-count">12</span></li>
+          <li>Exam mode</li>
+        </ul>
+      </aside>
+      <div class="app-main">
+        <div class="app-state is-on" data-state="0">
+          <p class="app-crumb">Algorithms <span>/</span> Week 6</p>
+          <div class="app-note">
+            <p class="n-title">Week 6 · Algorithms</p>
+            <p class="n-h"><mark>Recursion</mark><span class="n-tag">card</span></p>
+            <p>A function that calls itself on a smaller version of the problem.</p>
+            <p>Needs a base case, or it never stops.<span class="n-tag">card</span></p>
+            <p class="n-h"><mark>Base case</mark><span class="n-tag">card</span></p>
+            <p>The input small enough to answer directly.<span class="n-caret" aria-hidden="true"></span></p>
+          </div>
+          <p class="app-foot">3 cards from this page</p>
+          <ul class="app-cards">
+            <li><span>Front</span>What is recursion?</li>
+            <li><span>Front</span>What happens without a base case?</li>
+            <li><span>Front</span>What is a base case?</li>
+          </ul>
+        </div>
+        <div class="app-state" data-state="1">
+          <p class="app-crumb">Today <span>/</span> 4 of 12</p>
+          <div class="app-review">
+            <p class="r-from">Algorithms · Week 6</p>
+            <div class="r-card">
+              <p class="r-side">Front</p>
+              <p class="r-q">What is recursion?</p>
+            </div>
+            <div class="r-actions"><span class="r-btn">Show answer</span></div>
+          </div>
+        </div>
+        <div class="app-state" data-state="2">
+          <p class="app-crumb">Today <span>/</span> 4 of 12</p>
+          <div class="app-review">
+            <p class="r-from">Algorithms · Week 6</p>
+            <div class="r-card">
+              <p class="r-side">Back</p>
+              <p class="r-a">A function that calls itself on a smaller version of the problem.</p>
+            </div>
+            <div class="r-link">
+              <p class="r-link-h">Also came up in</p>
+              <p><b>C++</b> · Week 3, last term</p>
+              <p class="r-quote">“Recursive functions: factorial, then a base case”</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS: the itinerary slip on the dark band -->
+<section class="how" id="how" aria-labelledby="how-title">
+  <div class="how-left" data-reveal>
+    <h2 id="how-title" class="head">From lecture to revision without the copying out</h2>
+    <figure class="plate">
+      <img src="assets/uber-das-gedachtnis-untersuchungen-zur-experimentellen-psych.png" width="1243" height="853" loading="lazy" decoding="async" alt="A hand-drawn line chart from 1885: a curve rises steeply over the first two days of a memory test, then levels off above a dashed line.">
+      <figcaption class="small">Hermann Ebbinghaus, Über das Gedächtnis, 1885. Fig. 2.</figcaption>
+    </figure>
+  </div>
+  <div class="slip" data-reveal>
+    <ol class="slip-list">
+      <li>
+        <h3 class="slip-h">Write as you listen.</h3>
+        <p>Plain text, headings and quick lists. No templates to fill in.</p>
+      </li>
+      <li>
+        <h3 class="slip-h">Tallbook spots the ideas.</h3>
+        <p>Each heading and each definition becomes a card with the question on the front.</p>
+      </li>
+      <li class="slip-last">
+        <h3 class="slip-bar">Revise for ten minutes a day.</h3>
+        <p>Cards come back the day before you'd forget them, not all at once in exam week.</p>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- A NOTE BECOMING CARDS: the live thing -->
+<section class="note" id="note" aria-labelledby="note-title">
+  <div class="note-plate" data-reveal>
+    <div class="editor" data-ui>
+      <div class="editor-bar">
+        <span>Algorithms <i>/</i> Week 6</span>
+        <span class="editor-saved">Saved on this laptop</span>
+      </div>
+      <div class="editor-page" id="note-input" aria-label="Lecture note, Week 6 Algorithms">
+        <div class="t">Week 6 · Algorithms</div>
+        <div class="h">Recursion</div>
+        <div>A function that calls itself on a smaller version of the problem.</div>
+        <div>Needs a base case, or it never stops.</div>
+        <div class="h">Base case</div>
+        <div>The input small enough to answer directly.</div>
+      </div>
+    </div>
+  </div>
+  <div class="note-copy">
+    <div data-reveal>
+      <h2 id="note-title" class="head">What it does with one page of notes</h2>
+      <p class="lead note-caption" id="note-caption">Three cards from five lines. You wrote nothing extra.</p>
+    </div>
+    <div class="note-cards" data-reveal>
+      <div class="tabs" role="group" aria-label="Show the cards by">
+        <button type="button" class="tab" aria-pressed="true" data-side="front">Front</button>
+        <button type="button" class="tab" aria-pressed="false" data-side="back">Back</button>
+      </div>
+      <div class="deck" data-ui>
+        <ul class="deck-list" id="deck" aria-live="polite">
+          <li><button type="button" class="card" aria-pressed="false"><span class="face front"><span class="side">Front</span>What is recursion?</span><span class="face back"><span class="side">Back</span>A function that calls itself on a smaller version of the problem.</span></button></li>
+          <li><button type="button" class="card" aria-pressed="false"><span class="face front"><span class="side">Front</span>What happens without a base case?</span><span class="face back"><span class="side">Back</span>It never stops.</span></button></li>
+          <li><button type="button" class="card" aria-pressed="false"><span class="face front"><span class="side">Front</span>What is a base case?</span><span class="face back"><span class="side">Back</span>The input small enough to answer directly.</span></button></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES: the capabilities as a printed menu, beside the subject catalogue -->
+<section class="features" id="features" aria-labelledby="features-title">
+  <div class="sheet" data-reveal>
+    <h2 id="features-title" class="head sheet-h">Built for the way modules overlap</h2>
+    <dl class="menu">
+      <div class="menu-item">
+        <dt>Links across modules.</dt>
+        <dd>Write "recursion" in Algorithms and Tallbook shows where you met it in C++ last term.</dd>
+      </div>
+      <div class="menu-item">
+        <dt>Works offline.</dt>
+        <dd>Notes save on your laptop first and sync when the Wi-Fi comes back.</dd>
+      </div>
+      <div class="menu-item">
+        <dt>Diagrams from text.</dt>
+        <dd>Type a list of steps and get a flowchart you can drag into place.</dd>
+      </div>
+      <div class="menu-item">
+        <dt>Exam mode.</dt>
+        <dd>Pick a date and Tallbook only shows the cards you need before it.</dd>
+      </div>
+    </dl>
+  </div>
+  <div class="features-side">
+    <figure class="catalogue" data-reveal>
+      <div class="drift"><img src="assets/schlagwortkatalog.jpg" width="1920" height="1624" loading="lazy" decoding="async" alt="Oak drawers of a library card catalogue, each with a label of subject headings; one drawer is pulled out to show its index cards."></div>
+      <figcaption class="small">Subject catalogue, University Library of Graz.</figcaption>
+    </figure>
+    <div class="links" data-ui data-reveal aria-label="Tallbook showing where recursion came up before" role="img">
+      <p class="links-h"><b>recursion</b> <span>3 places</span></p>
+      <ul>
+        <li><span class="links-mod">Algorithms</span><span>Week 6 · this note</span></li>
+        <li class="on"><span class="links-mod">C++</span><span>Week 3 · last term</span></li>
+        <li><span class="links-mod">Discrete maths</span><span>Week 9 · induction</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING: two tickets -->
+<section class="pricing" id="pricing" aria-labelledby="pricing-title">
+  <h2 id="pricing-title" class="head pricing-h" data-reveal>Free to start, cheap to keep</h2>
+  <div class="tickets">
+    <article class="ticket t-free" data-reveal aria-labelledby="plan-free">
+      <h3 id="plan-free" class="t-name">Free</h3>
+      <ul class="t-lines">
+        <li>Three notebooks</li>
+        <li>Revision cards</li>
+        <li>Works offline</li>
+      </ul>
+      <div class="t-perf" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <p class="t-price">£0</p>
+      <div class="t-act"><a class="button t-btn" href="#start">Start a notebook</a></div>
+    </article>
+    <article class="ticket t-student" data-reveal aria-labelledby="plan-student">
+      <h3 id="plan-student" class="t-name">Student</h3>
+      <ul class="t-lines">
+        <li>Unlimited notebooks</li>
+        <li>Diagrams</li>
+        <li>Exam mode</li>
+        <li>Sync across your devices</li>
+      </ul>
+      <div class="t-perf" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <p class="t-price">£3</p>
+      <div class="t-act"><p class="t-per">a month</p><a class="button t-btn" href="#start" data-plan="Student">Try Student free for 14 days</a></div>
+    </article>
+  </div>
+  <p class="pricing-note" data-reveal>Cancel any time from settings. Your notes stay yours and export as plain text.</p>
+</section>
+
+<!-- QUESTIONS: answers as reading text -->
+<section class="faq" id="questions" aria-labelledby="faq-title">
+  <div class="faq-left" data-reveal>
+    <h2 id="faq-title" class="head">Questions</h2>
+    <figure class="faq-pic">
+      <img src="assets/card-catalog-at-the-indiana-state-library.jpg" width="1920" height="2560" loading="lazy" decoding="async" alt="A typed library catalogue card standing in an open drawer, with coloured tabs marking the cards behind it.">
+      <figcaption class="small">Catalogue cards, Indiana State Library.</figcaption>
+    </figure>
+  </div>
+  <div class="faq-text" data-reveal>
+    <p><b>Do I have to change how I take notes?</b> No. Write the way you already do. Headings and "X is Y" sentences make the best cards.</p>
+    <p><b>Can I bring my old notes?</b> Yes. Paste them in or import Markdown and Word files, and Tallbook makes cards from those too.</p>
+    <p><b>What happens to my notes if I stop paying?</b> You keep all of them. You go back to three active notebooks, and the rest become read-only.</p>
+    <p><b>Does it work for maths?</b> Yes, with LaTeX in notes and on cards.</p>
+  </div>
+</section>
+
+<!-- LAST CALL: the first page, already open -->
+<section class="cta" id="start" aria-labelledby="cta-title">
+  <h2 id="cta-title" class="display cta-h" data-reveal>Your next lecture is the first page</h2>
+  <div class="cta-dialog" data-reveal>
+    <form class="dialog" data-ui id="new-notebook" aria-label="New notebook">
+      <div class="dialog-step" id="dialog-form">
+        <p class="dialog-title">New notebook</p>
+        <label class="dialog-label" for="nb-name">Module</label>
+        <input class="dialog-field" id="nb-name" name="module" value="Algorithms" autocomplete="off" spellcheck="false">
+        <fieldset class="seg">
+          <legend class="dialog-label">Plan</legend>
+          <label><input type="radio" name="plan" value="Free" checked><span>Free</span></label>
+          <label><input type="radio" name="plan" value="Student"><span>Student</span></label>
+        </fieldset>
+        <button class="dialog-go" type="submit">Start a notebook</button>
+      </div>
+      <div class="dialog-step dialog-page" id="dialog-page" hidden>
+        <p class="dialog-crumb"><span id="page-crumb">Algorithms</span> <i>/</i> Week 1</p>
+        <div class="dialog-write" id="page-write" contenteditable="true" role="textbox" aria-multiline="true" aria-label="First page of your new notebook"></div>
+      </div>
+    </form>
+  </div>
+</section>
+
+</main>
+
+<div class="stripe stripe-thin" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+<footer class="footer" aria-labelledby="footer-title">
+  <h2 id="footer-title" class="sr-only">About this page</h2>
+  <div class="footer-cols">
+    <ul>
+      <li><a class="link" href="#how">How it works</a></li>
+      <li><a class="link" href="#features">Features</a></li>
+      <li><a class="link" href="#pricing">Pricing</a></li>
+      <li><a class="link" href="#questions">Questions</a></li>
+    </ul>
+    <ul>
+      <li><a class="link" href="#privacy">Privacy</a></li>
+      <li><a class="link" href="#terms">Terms</a></li>
+      <li><a class="link" href="#contact">Contact</a></li>
+    </ul>
+    <p class="footer-line">Tallbook is a made-up product, built to compare design approaches.</p>
+    <p class="credits small">Pictures: <a href="https://commons.wikimedia.org/wiki/File:%C3%9Cber_das_Ged%C3%A4chtnis._Untersuchungen_zur_experimentellen_Psychologie,_Fig_2.png">“Über das Gedächtnis, Fig 2”</a> by Hermann Ebbinghaus, <a href="https://creativecommons.org/publicdomain/mark/1.0/">public domain</a>; <a href="https://commons.wikimedia.org/wiki/File:Schlagwortkatalog.jpg">“Schlagwortkatalog”</a> by Dr. Marcus Gossler, <a href="https://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a>; <a href="https://commons.wikimedia.org/w/index.php?curid=153582894">“Card catalog at the Indiana State Library - interior view of catalog cards”</a> by TBurmeister (WMF), <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>; all via Wikimedia Commons.</p>
+  </div>
+  <svg class="footer-word" viewBox="0 0 1000 300" role="img" aria-label="Tallbook" preserveAspectRatio="xMidYMax meet"><text x="500" y="292" text-anchor="middle" textLength="1000" lengthAdjust="spacingAndGlyphs">TALLBOOK</text></svg>
+</footer>
+
+<script src="app.js" defer></script>
+</body>
+</html>
