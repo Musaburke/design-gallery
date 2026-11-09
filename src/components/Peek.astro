@@ -1,0 +1,97 @@
+---
+// A window onto a whole-page capture. With a mouse, the pointer's height in the
+// window picks the point in the page, with an eased glide, and leaving returns to
+// the top. On touch it scrolls natively; from the keyboard, arrows, Page Up/Down,
+// Home and End move it. Reduced motion keeps the scrolling and drops the glide.
+interface Props { src: string; w: number; h: number; alt: string; label: string; ratio: string; hint?: boolean }
+const { src, w, h, alt, label, ratio, hint = false } = Astro.props;
+---
+<div class="peek" data-peek tabindex="0" role="region" aria-label={label} style={`aspect-ratio: ${ratio}`}>
+  <img src={src} width={w} height={h} alt={alt} loading="lazy" decoding="async" draggable="false" />
+  {hint && (
+    <p class="hint" aria-hidden="true">
+      <span class="mouse">Move over it to scroll the page</span>
+      <span class="touch">Swipe to scroll the page</span>
+    </p>
+  )}
+</div>
+
+<style>
+  .peek {
+    position: relative; overflow-y: auto; overscroll-behavior-y: auto;
+    border-radius: 6px; background: var(--surface);
+    scrollbar-width: none;
+  }
+  .peek::-webkit-scrollbar { display: none; }
+  .peek img { display: block; width: 100%; height: auto; user-select: none; }
+  .peek:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  /* With a mouse the pointer does the scrolling, so the wheel goes to the page. */
+  @media (hover: hover) and (pointer: fine) {
+    .peek { overflow-y: hidden; cursor: ns-resize; }
+  }
+
+  .hint {
+    position: sticky; bottom: 0.75rem; margin: -2.75rem 0.75rem 0 auto; width: fit-content;
+    display: block; padding: 0.375rem 0.75rem; border-radius: 999px;
+    background: rgb(12 12 12 / 0.82); color: var(--ink); font-size: var(--t-meta);
+    pointer-events: none; transition: opacity 240ms ease;
+  }
+  .hint .touch { display: none; }
+  @media (hover: none), (pointer: coarse) {
+    .hint .mouse { display: none; }
+    .hint .touch { display: inline; }
+  }
+  .peek.used .hint { opacity: 0; }
+  /* Small windows (the desktop shot on a phone) get a smaller hint. */
+  .peek { container-type: inline-size; }
+  @container (max-width: 480px) {
+    .hint { bottom: 0.5rem; margin: -2rem 0.5rem 0 auto; padding: 0.25rem 0.5rem; font-size: 0.6875rem; }
+  }
+</style>
+
+<script>
+  const fine = matchMedia('(hover: hover) and (pointer: fine)');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+
+  document.querySelectorAll<HTMLElement>('[data-peek]').forEach((el) => {
+    let target = 0, raf = 0;
+    const max = () => el.scrollHeight - el.clientHeight;
+
+    // Ease toward the target each frame: quick to respond, soft to settle.
+    const tick = () => {
+      const d = target - el.scrollTop;
+      if (Math.abs(d) < 2) { el.scrollTop = target; raf = 0; return; }
+      // At least a pixel a frame: scrollTop rounds, so smaller steps would never arrive.
+      el.scrollTop += Math.sign(d) * Math.max(1, Math.abs(d) * 0.14);
+      raf = requestAnimationFrame(tick);
+    };
+    const go = (y: number, glide = !reduce.matches) => {
+      target = Math.max(0, Math.min(max(), y));
+      el.classList.add('used');
+      if (!glide) { cancelAnimationFrame(raf); raf = 0; el.scrollTop = target; return; }
+      if (!raf) raf = requestAnimationFrame(tick);
+    };
+
+    el.addEventListener('pointermove', (e) => {
+      if (e.pointerType !== 'mouse' || !fine.matches) return;
+      const r = el.getBoundingClientRect();
+      // The middle 80% of the window covers the whole page, so both ends are easy to reach.
+      const t = Math.min(1, Math.max(0, ((e.clientY - r.top) / r.height - 0.1) / 0.8));
+      go(t * max());
+    });
+    el.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse' && fine.matches) go(0); });
+    el.addEventListener('scroll', () => el.classList.add('used'), { passive: true });
+
+    el.addEventListener('keydown', (e) => {
+      const page = el.clientHeight * 0.9;
+      const moves: Record<string, number> = {
+        ArrowDown: el.scrollTop + 80, ArrowUp: el.scrollTop - 80,
+        PageDown: el.scrollTop + page, PageUp: el.scrollTop - page,
+        ' ': el.scrollTop + (e.shiftKey ? -page : page), Home: 0, End: max(),
+      };
+      if (!(e.key in moves)) return;
+      e.preventDefault();
+      go(moves[e.key]!);
+    });
+  });
+</script>
