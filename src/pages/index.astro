@@ -1,54 +1,131 @@
 ---
 import Base from '../layouts/Base.astro';
-import Card from '../components/Card.astro';
-import { components } from '../data/components';
+import { components, groups, inGroup, bySlug } from '../data/components';
+import { demoFor } from '../lib/demos';
 
-const backgrounds = components.filter((c) => c.group === 'Backgrounds');
-const motion = components.filter((c) => c.group === 'Motion');
+// Each group gets a tile led by one live demo. The tiles are links; the demos
+// in them are pictures (inert), so they play themselves and take no clicks.
+const tiles = groups.map((g, i) => {
+  const items = inGroup(g);
+  const feature = bySlug(g.feature) ?? items[0]!;
+  return { ...g, i, items, feature, Demo: demoFor(feature) };
+});
 ---
 <Base title="Design gallery">
   <div class="wrap">
     <div class="intro">
-      <h1>Components</h1>
-      <p>Backgrounds and effects from my sites, running live. Open one for its code.</p>
+      <div class="lede">
+        <h1>Everything my sites are made of</h1>
+        <p>The backgrounds, effects and building blocks I use on my sites. Each one runs live here, and opening it shows the code. {components.length} components in {groups.length} groups.</p>
+      </div>
+      <nav class="jump" aria-label="Jump to a group">
+        <ul>
+          {tiles.map((t) => (
+            <li>
+              <a href={`/g/${t.slug}/`}>
+                <span class="name">{t.heading}</span>
+                <span class="n">{t.items.length}</span>
+                <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" /></svg>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
     </div>
 
-    <section id="backgrounds" aria-labelledby="h-bg">
-      <h2 id="h-bg">Backgrounds <span>{backgrounds.length}</span></h2>
-      <div class="grid two">
-        {backgrounds.map((item) => <Card item={item} />)}
-      </div>
-    </section>
-
-    <section id="motion" aria-labelledby="h-motion">
-      <h2 id="h-motion">Motion and effects <span>{motion.length}</span></h2>
-      <div class="grid mixed">
-        {motion.map((item) => <Card item={item} />)}
-      </div>
-    </section>
+    <div class="tiles">
+      {tiles.map((t) => (
+        <article class={`tile t-${t.slug}`} style={`--i: ${t.i}`} aria-labelledby={`h-${t.slug}`}>
+          <div class="frame" data-preview inert aria-hidden="true" style={`--ground: ${t.feature.ground}`}>
+            <t.Demo />
+          </div>
+          <div class="caption">
+            <h2 id={`h-${t.slug}`}>
+              <a href={`/g/${t.slug}/`}>
+                {t.heading}
+                <span class="count">{t.items.length}</span>
+                <svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" /></svg>
+              </a>
+            </h2>
+            <p class="line">{t.line}</p>
+            <p class="names">{t.items.map((c) => c.name).join(', ')}</p>
+          </div>
+        </article>
+      ))}
+    </div>
   </div>
 </Base>
 
 <style>
-  .intro { padding-block: 2.5rem 3.5rem; max-width: 40rem; }
-  h1 { font-size: var(--t-page); }
-  .intro p { margin-top: 0.5rem; color: var(--muted); }
-  section { scroll-margin-top: 1.5rem; padding-bottom: 5rem; }
-  h2 { font-size: var(--t-title); margin-bottom: 1.25rem; }
-  h2 span { color: var(--muted); font-variant-numeric: tabular-nums; margin-left: 0.25rem; }
-  .grid { display: grid; gap: 2.5rem 1.25rem; }
-  .two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  /* Five cards: three across, then two wider ones, so no row ends ragged. */
-  .mixed { grid-template-columns: repeat(6, minmax(0, 1fr)); }
-  .mixed > :global(*) { grid-column: span 2; }
-  .mixed > :global(*:nth-child(n + 4)) { grid-column: span 3; }
-  @media (max-width: 900px) {
-    .mixed { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .mixed > :global(*), .mixed > :global(*:nth-child(n + 4)) { grid-column: span 1; }
-    .mixed > :global(*:last-child) { grid-column: span 2; }
+  .intro {
+    display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 2rem 1.25rem; align-items: end;
+    padding-block: clamp(2.5rem, 6vw, 5rem) clamp(2.5rem, 5vw, 4.5rem);
+  }
+  h1 { font-size: clamp(2.5rem, 1.2rem + 5.4vw, 6.25rem); line-height: 0.95; letter-spacing: -0.04em; max-width: 13ch; }
+  .lede p { margin-top: 1.5rem; max-width: 40rem; font-size: clamp(1.0625rem, 1rem + 0.3vw, 1.25rem); }
+
+  /* The groups as a short list of big links, so you can go straight to one. */
+  .jump ul { display: grid; gap: 0.25rem; }
+  .jump a {
+    display: grid; grid-template-columns: 1fr auto auto; align-items: baseline; gap: 0.75rem;
+    padding: 0.625rem 0.875rem; border-radius: 6px;
+    font-size: clamp(1.125rem, 1rem + 0.5vw, 1.5rem); letter-spacing: -0.01em;
+    transition: background-color 160ms ease, transform 160ms var(--ease-out);
+  }
+  .jump .n { color: var(--muted); font-size: var(--t-body); font-variant-numeric: tabular-nums; }
+  .jump svg { align-self: center; width: 1rem; height: 1rem; fill: none; stroke: var(--muted); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; transition: transform 200ms var(--ease-out), stroke 160ms ease; }
+  .jump a:active { transform: scale(0.99); }
+  @media (hover: hover) and (pointer: fine) {
+    .jump a:hover { background: var(--surface); }
+    .jump a:hover svg { transform: translateX(4px); stroke: var(--accent); }
+  }
+
+  /* An uneven grid: a wide lead, a swap on the second row, a long strip to close. */
+  .tiles { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 3rem 1.25rem; padding-bottom: 6rem; }
+  .tile { position: relative; display: flex; flex-direction: column; min-width: 0; grid-column: span 12; }
+  .t-backgrounds { grid-column: span 7; }
+  .t-motion { grid-column: span 5; }
+  .t-navigation { grid-column: span 5; }
+  .t-sections { grid-column: span 7; }
+
+  /* Tiles in a row share one frame height, so their captions line up. */
+  .frame { height: clamp(18rem, 34vw, 31rem); transition: transform 300ms var(--ease-out); }
+  .t-surfaces .frame { height: auto; aspect-ratio: 21 / 8; }
+
+  .caption { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0.25rem 2rem; margin-top: 1rem; align-items: baseline; }
+  h2 { font-size: var(--t-title); grid-column: 1 / -1; }
+  h2 a { display: inline-flex; align-items: baseline; gap: 0.5rem; outline: none; }
+  /* The heading's link covers the whole tile. */
+  h2 a::after { content: ''; position: absolute; inset: -0.5rem; z-index: 3; border-radius: 10px; }
+  h2 a:focus-visible::after { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .count { color: var(--muted); font-size: var(--t-body); font-weight: 400; font-variant-numeric: tabular-nums; }
+  .arrow { align-self: center; width: 1rem; height: 1rem; fill: none; stroke: var(--muted); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; transition: transform 200ms var(--ease-out), stroke 160ms ease; }
+  .line { font-size: var(--t-body); max-width: 46ch; }
+  .names { color: var(--muted); font-size: 0.9375rem; }
+  .tile:active .frame { transform: scale(0.99); }
+  @media (hover: hover) and (pointer: fine) {
+    .tile:hover .arrow { transform: translateX(4px); stroke: var(--accent); }
+  }
+
+  /* Tiles rise in once, one after another. CSS only, so they show without JavaScript. */
+  .tile { animation: rise 700ms var(--ease-out) both; animation-delay: calc(80ms + var(--i) * 70ms); }
+  @keyframes rise { from { opacity: 0; transform: translateY(24px); } }
+
+  @media (max-width: 1080px) {
+    .caption { grid-template-columns: minmax(0, 1fr); }
+  }
+  @media (max-width: 860px) {
+    .intro { grid-template-columns: minmax(0, 1fr); }
+    .jump a { padding-inline: 0; }
+    .tile, .t-backgrounds, .t-motion, .t-navigation, .t-sections { grid-column: span 12; }
+    .frame, .t-surfaces .frame { height: auto; aspect-ratio: 16 / 10; }
   }
   @media (max-width: 640px) {
-    .two, .mixed { grid-template-columns: minmax(0, 1fr); }
-    .mixed > :global(*), .mixed > :global(*:last-child) { grid-column: span 1; }
+    .frame, .t-surfaces .frame { aspect-ratio: 4 / 3.4; }
+    .tiles { row-gap: 2.5rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .tile { animation: none; }
+    .frame, .tile:active .frame, .jump a:active { transition: none; transform: none; }
   }
 </style>

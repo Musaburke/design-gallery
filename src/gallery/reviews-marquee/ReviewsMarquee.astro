@@ -1,0 +1,149 @@
+---
+// Review cards on glass sliding past in a strip with no end. Plain CSS: the
+// cards are rendered twice and the track slides by half its width, so the
+// loop has no join. A moving mouse pauses it. Reduced motion shows a still row
+// you can scroll. Card widths follow the frame (container query units).
+// Sample reviews with made-up names: swap in real ones, never invented ones.
+interface Review { name: string; source: string; text: string; rating?: number }
+interface Props { reviews?: Review[] }
+const {
+  reviews = [
+    { name: 'Sam', source: 'sample review', rating: 5, text: 'Turned up on time, worked fast and left the place spotless. Booked again for next month.' },
+    { name: 'Priya', source: 'sample review', rating: 5, text: 'Clear price before they started and no surprises after. The kitchen looks new.' },
+    { name: 'Tom', source: 'sample review', text: 'Easy to book, friendly on the day, and they moved every piece of furniture back where it was.' },
+    { name: 'Aisha', source: 'sample review', rating: 4, text: 'Great job on a flat that really needed it. One window missed, fixed the same week without a fuss.' },
+    { name: 'Jordan', source: 'sample review', rating: 5, text: 'Replied within the hour and fitted us in that weekend. Would recommend to anyone.' },
+  ],
+} = Astro.props;
+
+// About 6 seconds per card keeps the strip slow and readable.
+const duration = `${reviews.length * 6}s`;
+const star = 'M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z';
+---
+<div class="reviews">
+  <div class="marquee" aria-label="Customer reviews" role="region" data-marquee>
+    <div class="track" style={`--duration: ${duration}`}>
+      {[0, 1].map((copy) => (
+        <ul class="group" aria-hidden={copy === 1 ? 'true' : undefined} inert={copy === 1}>
+          {reviews.map((review) => (
+            <li class="card glass">
+              <svg class="quote" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 7H6.5A1.5 1.5 0 0 0 5 8.5V12h4v1a3 3 0 0 1-3 3M19 7h-3.5A1.5 1.5 0 0 0 14 8.5V12h4v1a3 3 0 0 1-3 3" /></svg>
+              {review.rating !== undefined ? (
+                <p class="stars" role="img" aria-label={`${review.rating} out of 5 stars`}>
+                  {[1, 2, 3, 4, 5].map((n) => (
+                    <svg viewBox="0 0 24 24" aria-hidden="true" class:list={{ on: n <= review.rating! }}><path d={star} /></svg>
+                  ))}
+                </p>
+              ) : (
+                <span class="recommends">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10v10H4V10zM7 10l4-7a2 2 0 0 1 2.6 2.5L12.5 9H19a2 2 0 0 1 2 2.3l-1.2 6.8a2 2 0 0 1-2 1.9H7" /></svg>
+                  Recommends
+                </span>
+              )}
+              {/* Clamped so one long review does not dominate. */}
+              <p class="text">{review.text}</p>
+              <p class="who">{review.name}, {review.source}</p>
+            </li>
+          ))}
+        </ul>
+      ))}
+    </div>
+  </div>
+</div>
+
+<script>
+  // Pause only while a mouse is really moving over the strip; resume when it leaves.
+  for (const marquee of document.querySelectorAll<HTMLElement>('[data-marquee]')) {
+    marquee.addEventListener('pointermove', (event) => {
+      if (event.pointerType === 'mouse') marquee.classList.add('paused');
+    });
+    marquee.addEventListener('pointerleave', () => marquee.classList.remove('paused'));
+    // Off screen, the strip stops instead of sliding where no one can see it.
+    new IntersectionObserver(([e]) => marquee.classList.toggle('offscreen', !e?.isIntersecting)).observe(marquee);
+  }
+</script>
+
+<style>
+  .reviews {
+    --background: #0a0a0a; --foreground: #f5f1e6; --primary: #c9a227; --primary-foreground: #0a0a0a;
+    --secondary: #1f1d16; --muted-foreground: #a8a293;
+    position: absolute; inset: 0;
+    display: grid; align-content: center;
+    color: var(--foreground);
+    /* A warm gold glow behind the strip, so the glass cards have something to bend. */
+    background:
+      radial-gradient(60% 70% at 20% 60%, color-mix(in oklab, var(--primary) 16%, transparent), transparent 70%),
+      radial-gradient(50% 60% at 85% 40%, color-mix(in oklab, var(--primary) 10%, transparent), transparent 70%),
+      linear-gradient(var(--background), var(--secondary) 50%, var(--background));
+  }
+
+  .glass {
+    background: color-mix(in oklab, var(--background) 55%, transparent);
+    -webkit-backdrop-filter: blur(18px) saturate(170%);
+    backdrop-filter: blur(18px) saturate(170%);
+    box-shadow:
+      inset 0 1px 0 color-mix(in oklab, var(--foreground) 14%, transparent),
+      inset 0 -1px 0 color-mix(in oklab, var(--primary) 18%, transparent);
+  }
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .glass { background: color-mix(in oklab, var(--background) 94%, transparent); }
+  }
+
+  .marquee {
+    container-type: inline-size;
+    overflow: hidden;
+    padding-block: 1rem 2rem;
+    /* The strip fades out at both edges instead of being cut. */
+    mask-image: linear-gradient(90deg, transparent, var(--background) 6%, var(--background) 94%, transparent);
+  }
+  .track {
+    display: flex;
+    width: max-content;
+    animation: marquee var(--duration) linear infinite;
+  }
+  /* Paused by the script, not :hover: :hover also fires when the page scrolls the strip
+     under a mouse that is not moving, which left the strip looking stuck. */
+  .marquee:global(.paused) .track,
+  .marquee:global(.offscreen) .track { animation-play-state: paused; }
+  /* Each copy carries its own trailing gap, so sliding by exactly half lands on the start. */
+  .group { display: flex; align-items: stretch; gap: 1rem; padding: 0 1rem 0 0; margin: 0; list-style: none; }
+
+  .card {
+    position: relative; overflow: hidden;
+    width: 85cqw; flex-shrink: 0;
+    padding: 1.5rem; border-radius: 0.75rem;
+    border: 1px solid color-mix(in oklab, var(--primary) 35%, transparent);
+    box-shadow:
+      inset 0 1px 0 color-mix(in oklab, var(--foreground) 14%, transparent),
+      0 18px 40px -20px color-mix(in oklab, var(--primary) 40%, transparent);
+  }
+  @container (min-width: 560px) { .card { width: calc((100cqw - 2rem) / 2.4); } }
+  @container (min-width: 900px) { .card { width: calc((100cqw - 3rem) / 3.4); } }
+
+  svg { fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+  .quote { position: absolute; right: 1rem; top: 1rem; width: 3.5rem; height: 3.5rem; color: color-mix(in oklab, var(--primary) 15%, transparent); stroke-width: 2.2; }
+  .stars { display: flex; margin: 0; color: var(--primary); }
+  .stars svg { width: 1.25rem; height: 1.25rem; }
+  .stars svg.on { fill: currentColor; }
+  .recommends {
+    display: inline-flex; align-items: center; gap: 0.375rem; width: fit-content;
+    padding: 0.25rem 0.75rem; border-radius: 999px;
+    background: var(--primary); color: var(--primary-foreground);
+    font-size: 0.875rem; font-weight: 500;
+  }
+  .recommends svg { width: 1rem; height: 1rem; fill: currentColor; stroke: none; }
+  .text {
+    margin: 1rem 0 0; font-size: 1.125rem; line-height: 1.6;
+    display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .who { margin: 0.75rem 0 0; font-size: 0.875rem; color: var(--muted-foreground); }
+
+  @keyframes marquee { to { transform: translateX(-50%); } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .marquee { overflow-x: auto; scroll-snap-type: x mandatory; mask-image: none; }
+    .track { animation: none; }
+    .group[aria-hidden] { display: none; }
+    .card { scroll-snap-align: start; }
+  }
+</style>

@@ -1,0 +1,212 @@
+---
+// The end of a page: a triangle rises from the foot with links in three rows
+// and a back-to-top button at its centre. Before it, a floating back-to-top
+// button with a progress ring follows the scroll, and hides while the pyramid
+// is in view so there is only ever one.
+// Fills its parent and watches its own scroll box. On a real page drop the box
+// and watch the window. Placeholder links: swap in the real destinations.
+const icon = {
+  linkedin: 'M4 4h16v16H4zM8 10v6M8 7.5v.01M12 16v-3.5a2 2 0 0 1 4 0V16M12 10v6',
+  github: 'M8.5 7 3.5 12l5 5M15.5 7l5 5-5 5',
+  mail: 'M3 6h18v12H3zM3.5 6.5l8.5 6.5 8.5-6.5',
+  grid: 'M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z',
+  pen: 'M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16zM13.5 6.5l4 4',
+  doc: 'M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8zM14 3v5h5M9 13h6M9 17h6',
+  up: 'M12 19V5M5.5 11.5 12 5l6.5 6.5',
+};
+---
+<div class="link-pyramid" data-link-pyramid>
+  <div class="box" data-box tabindex="0" role="region" aria-label="Sample page. Scroll to the end to see the pyramid.">
+    <section class="part">
+      <h3>Scroll to the end of this page</h3>
+      <p>A button with a ring appears in the corner and fills as you go.</p>
+    </section>
+    <section class="part" aria-hidden="true">
+      <div class="blocks"><span class="b1"></span><span></span><span></span></div>
+    </section>
+
+    <nav class="pyramid" aria-label="Elsewhere" data-pyramid>
+      <div class="tri" aria-hidden="true"></div>
+      <ul class="rows">
+        <li class="r1">
+          <a href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><path d={icon.linkedin} /></svg><span>LinkedIn</span></a>
+        </li>
+        <li class="r2">
+          <a href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><path d={icon.github} /></svg><span>GitHub</span></a>
+          <button type="button" class="top" data-top aria-label="Back to top"><svg viewBox="0 0 24 24" aria-hidden="true"><path d={icon.up} /></svg></button>
+          <a href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><path d={icon.mail} /></svg><span>Email</span></a>
+        </li>
+        <li class="r3">
+          <a href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><path d={icon.grid} /></svg><span>Work</span></a>
+          <a href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><path d={icon.pen} /></svg><span>Writing</span></a>
+          <a href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><path d={icon.doc} /></svg><span>CV</span></a>
+        </li>
+      </ul>
+      <p class="legal">© Your name</p>
+    </nav>
+  </div>
+
+  <button class="totop" type="button" aria-label="Back to top" data-totop tabindex="-1">
+    <svg class="progress" viewBox="0 0 52 52" aria-hidden="true">
+      <circle cx="26" cy="26" r="24" class="track" />
+      <circle cx="26" cy="26" r="24" class="fill" pathLength="1" data-ring />
+    </svg>
+    <svg class="arrow" viewBox="0 0 24 24" aria-hidden="true"><path d={icon.up} /></svg>
+  </button>
+</div>
+
+<style>
+  .link-pyramid {
+    --lp-ink: #f1f1ef; --lp-muted: #a3a49f; --lp-surface: #262626; --lp-accent: #8fa68e; --lp-accent-ink: #1c1c1c;
+    --lp-ease: cubic-bezier(0.23, 1, 0.32, 1);
+    position: absolute; inset: 0; color: var(--lp-ink);
+    container-type: size;
+  }
+  .box { height: 100%; overflow-y: auto; outline-offset: -2px; display: flex; flex-direction: column; }
+  .part { min-height: 70cqh; padding: 1.5rem; flex-shrink: 0; }
+  h3 { font-size: clamp(1.5rem, 6cqw, 3rem); font-weight: 400; letter-spacing: -0.03em; line-height: 1.05; margin: 0; max-width: 16ch; }
+  .part p { color: var(--lp-muted); margin: 1rem 0 0; max-width: 40ch; }
+  .blocks { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 0.75rem; }
+  .blocks span { height: 40cqh; border-radius: 6px; background: var(--lp-surface); }
+  .blocks .b1 { background: #303030; }
+
+  svg { fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+
+  .pyramid { position: relative; width: 100%; height: clamp(240px, 72cqh, 380px); margin-top: auto; flex-shrink: 0; overflow: hidden; }
+  .tri {
+    position: absolute; inset: 0;
+    background: var(--lp-surface);
+    clip-path: polygon(50% 0, 100% 100%, 0 100%);
+    transition: transform 1100ms var(--lp-ease);
+  }
+  .rows { position: absolute; inset: 0; display: grid; grid-template-rows: 1fr 1fr 1fr; margin: 0; padding: clamp(1.75rem, 8cqh, 3.5rem) 0 2.5rem; list-style: none; }
+  .rows li { display: flex; justify-content: center; align-items: center; }
+  .r2 { gap: clamp(2.5rem, 14cqw, 13rem); }
+  .r3 { gap: clamp(3.5rem, 26cqw, 26rem); }
+  .rows a, .top {
+    display: grid; justify-items: center; gap: 0.4rem;
+    color: var(--lp-ink); font-size: 0.875rem;
+    transition: opacity 500ms ease, transform 600ms var(--lp-ease), color 200ms ease;
+  }
+  .rows a svg { width: 26px; height: 26px; transition: transform 300ms var(--lp-ease); }
+  .rows a span { color: var(--lp-muted); transition: color 200ms ease; }
+  @media (hover: hover) and (pointer: fine) {
+    .rows a:hover { color: var(--lp-accent); }
+    .rows a:hover span { color: var(--lp-ink); }
+    .rows a:hover svg { transform: translateY(-3px); }
+  }
+  .top {
+    all: unset; box-sizing: border-box; cursor: pointer;
+    width: 56px; height: 56px; border-radius: 50%;
+    display: grid; place-items: center; color: var(--lp-ink);
+    box-shadow: inset 0 0 0 1.5px rgb(255 255 255 / 0.4);
+    transition: opacity 500ms ease, transform 600ms var(--lp-ease), box-shadow 200ms ease, background-color 200ms ease;
+  }
+  .top svg { width: 22px; height: 22px; }
+  @media (hover: hover) and (pointer: fine) { .top:hover { background: var(--lp-accent); color: var(--lp-accent-ink); box-shadow: none; } }
+  .top:active { transform: scale(0.94); }
+  .top:focus-visible, .totop:focus-visible { outline: 2px solid var(--lp-accent); outline-offset: 3px; }
+  .legal { position: absolute; left: 0; right: 0; bottom: 0.875rem; margin: 0; text-align: center; font-size: 0.8125rem; color: var(--lp-muted); }
+
+  /* Hidden only once the script is running, so the pyramid shows without it.
+     The script adds .in each time it scrolls into view. */
+  .armed .tri { transform: translateY(100%); }
+  .armed .rows a, .armed .top { opacity: 0; transform: translateY(20px); }
+  .armed .pyramid.in .tri { transform: none; }
+  .armed .pyramid.in .rows a, .armed .pyramid.in .top { opacity: 1; transform: none; }
+  .pyramid.in .r1 a { transition-delay: 500ms; }
+  .pyramid.in .r2 > * { transition-delay: 650ms; }
+  .pyramid.in .r3 a { transition-delay: 800ms; }
+  .armed .pyramid.in .top:active { transform: scale(0.94); transition-delay: 0ms; }
+
+  .totop {
+    all: unset; box-sizing: border-box; cursor: pointer;
+    position: absolute; right: 1rem; bottom: 1rem; z-index: 2;
+    width: 52px; height: 52px; border-radius: 50%;
+    display: grid; place-items: center; color: var(--lp-ink);
+    background: rgb(30 30 30 / 0.85);
+    opacity: 0; transform: translateY(16px) scale(0.9); pointer-events: none;
+    transition: opacity 300ms ease, transform 400ms var(--lp-ease);
+  }
+  .totop.show { opacity: 1; transform: none; pointer-events: auto; }
+  .totop.show:active { transform: scale(0.94); }
+  .totop .arrow { width: 20px; height: 20px; transition: transform 300ms var(--lp-ease); }
+  @media (hover: hover) and (pointer: fine) { .totop:hover .arrow { transform: translateY(-3px); } }
+  .progress { position: absolute; inset: 0; transform: rotate(-90deg); }
+  .progress circle { stroke-width: 1.5; }
+  .track { stroke: rgb(255 255 255 / 0.12); }
+  .fill { stroke: var(--lp-accent); stroke-dasharray: 1; stroke-dashoffset: 1; }
+
+  @container (max-width: 520px) {
+    .rows a span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+    .r2 { gap: 2.75rem; }
+    .r3 { gap: 4.75rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .tri, .rows a, .top, .totop { transition: none; }
+    .armed .tri, .armed .rows a, .armed .top { transform: none; opacity: 1; }
+  }
+</style>
+
+<script>
+  import { playsItself, whenFree } from '../../lib/preview';
+
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const HOLD_TOP = 1200; // ms at the top before scrolling down
+  const HOLD_END = 3600; // ms at the pyramid before going back up
+  const BACK_UP = 1400;  // ms for the smooth scroll back to settle
+
+  document.querySelectorAll<HTMLElement>('[data-link-pyramid]').forEach((root) => {
+    const box = root.querySelector<HTMLElement>('[data-box]')!;
+    const pyramid = root.querySelector<HTMLElement>('[data-pyramid]')!;
+    const totop = root.querySelector<HTMLButtonElement>('[data-totop]')!;
+    const ring = root.querySelector<SVGCircleElement>('[data-ring]')!;
+    let pyramidVisible = false;
+
+    root.classList.add('armed');
+    // Placeholder links go nowhere; stop them jumping the page to the top.
+    root.querySelectorAll<HTMLAnchorElement>('a[href="#"]').forEach((a) => a.addEventListener('click', (e) => e.preventDefault()));
+
+    const update = () => {
+      const max = box.scrollHeight - box.clientHeight;
+      ring.style.strokeDashoffset = String(1 - (max > 0 ? box.scrollTop / max : 0));
+      const show = box.scrollTop > box.clientHeight * 0.4 && !pyramidVisible;
+      totop.classList.toggle('show', show);
+      totop.tabIndex = show ? 0 : -1;
+    };
+    box.addEventListener('scroll', update, { passive: true });
+    new ResizeObserver(update).observe(box);
+
+    // Rises each time it comes into view, and resets once it has fully left.
+    new IntersectionObserver(([e]) => {
+      if (!e) return;
+      pyramidVisible = e.isIntersecting;
+      if (e.intersectionRatio >= 0.35) pyramid.classList.add('in');
+      else if (!e.isIntersecting) pyramid.classList.remove('in');
+      update();
+    }, { root: box, threshold: [0, 0.35] }).observe(pyramid);
+
+    const toTop = () => {
+      box.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+      box.focus({ preventScroll: true });
+    };
+    root.querySelector('[data-top]')?.addEventListener('click', toTop);
+    totop.addEventListener('click', toTop);
+
+    // In a grid card: wait, glide down to the pyramid, wait, glide back up, again.
+    if (!playsItself(root)) return;
+    let timer = 0;
+    const down = () => {
+      box.scrollTo({ top: box.scrollHeight, behavior: 'smooth' });
+      timer = window.setTimeout(up, HOLD_END);
+    };
+    const up = () => {
+      box.scrollTo({ top: 0, behavior: 'smooth' });
+      timer = window.setTimeout(down, BACK_UP + HOLD_TOP);
+    };
+    whenFree(root, (free) => {
+      clearTimeout(timer);
+      if (free) timer = window.setTimeout(box.scrollTop > 0 ? up : down, HOLD_TOP);
+    });
+  });
+</script>
