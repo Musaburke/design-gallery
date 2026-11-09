@@ -1,11 +1,12 @@
 # Design gallery
 
-Musa's component gallery: every background and effect from his sites, running live, with its code. Private repo, deployed free on Cloudflare Pages (`*.pages.dev`, no custom domain): every push to `main` deploys.
+Musa's component gallery: every background and effect from his sites, running live, with its code. Private repo, live free at https://design-gallery.muburke07.workers.dev (Cloudflare Workers static assets, no custom domain).
 
 Stack: Astro 7, TypeScript, Tailwind 4, `three`. Run with `npm run dev`. Check with `npm run check`.
 
 ## Deploy
-- Cloudflare Pages, connected to the GitHub repo. Build `npm run build`, output `dist`, Node from `.node-version`.
+- Cloudflare Workers static assets, configured in `wrangler.jsonc`: plain files from `dist/`, no server code and no adapter. Don't add `@astrojs/cloudflare`; `wrangler pages project create` once added it on its own, and it was undone.
+- `npm run deploy` runs the check, builds and uploads. Pushing to GitHub does not deploy, so deploy after merging to `main`. Wrangler is logged in to Musa's Cloudflare account on this Mac (`npx wrangler whoami`).
 - `public/_headers` sets the security headers and an enforced CSP. Same-origin framing is allowed because `/skills/<id>/` shows each demo in an iframe. A new external script, font or image host needs adding to the CSP, or it is blocked on the live site (the dev server ignores `_headers`).
 - The site is public even though the repo is private: placeholders only, no personal data, no source repos.
 
