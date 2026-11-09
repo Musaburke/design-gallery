@@ -8,7 +8,8 @@ Stack: Astro 7, TypeScript, Tailwind 4, `three`. Run with `npm run dev`. Check w
 - `src/data/components.ts` is the one list. Each entry points at `src/gallery/<slug>/`.
 - `entry` is the component the pages render. `files` are shown as code, in order, with paths relative to `src/`.
 - `src/lib/demos.ts` loads the demos and the raw text of their files with `import.meta.glob`. The code panels show the same files the demos run, so they can't drift.
-- `/` is a grid of live previews. `/c/<slug>/` is the full demo, the code, where it came from and what changed.
+- `/` is a grid of live previews. `/c/<slug>/` is the full demo, the code and what changed.
+- `origin` (the source repo and path) stays in `components.ts` but is hidden on the pages for now. Musa will confirm before it comes back. No site names in visible text, `changes` or code comments.
 
 ## Adding a component
 1. Copy the original into `src/gallery/<slug>/`. It's a snapshot, not a link to the other repo.
