@@ -1,11 +1,9 @@
 ---
 import '../styles/global.css';
-import { components } from '../data/components';
+import { groups, inGroup } from '../data/components';
 
-interface Props { title: string; description?: string }
-const { title, description = 'Every background and effect from my sites, live, with the code.' } = Astro.props;
-const count = (group: string) => components.filter((c) => c.group === group).length;
-const path = Astro.url.pathname;
+interface Props { title: string; description?: string; group?: string }
+const { title, description = 'Every background, effect and building block from my sites, live, with the code.', group } = Astro.props;
 ---
 <!doctype html>
 <html lang="en-GB">
@@ -22,7 +20,7 @@ const path = Astro.url.pathname;
   <body>
     <a class="skip" href="#main">Skip to content</a>
     <header class="bar wrap">
-      <a class="brand" href="/" aria-current={path === '/' ? 'page' : undefined}>
+      <a class="brand" href="/" aria-current={Astro.url.pathname === '/' ? 'page' : undefined}>
         <svg class="mark" viewBox="0 0 24 24" aria-hidden="true">
           <rect x="2" y="2" width="9" height="9" rx="1.5" fill="currentColor" opacity="0.35" />
           <rect x="13" y="2" width="9" height="9" rx="1.5" fill="var(--accent)" />
@@ -31,10 +29,19 @@ const path = Astro.url.pathname;
         </svg>
         Design gallery
       </a>
-      <nav aria-label="Groups">
-        <a href="/#backgrounds">Backgrounds <span>{count('Backgrounds')}</span></a>
-        <a href="/#motion">Motion <span>{count('Motion')}</span></a>
+      <nav class="groups" aria-label="Groups">
+        {groups.map((g) => (
+          <a href={`/g/${g.slug}/`} aria-current={g.slug === group ? 'page' : undefined}>{g.heading} <span>{inGroup(g).length}</span></a>
+        ))}
       </nav>
+      <details class="menu">
+        <summary class="press">Groups<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4" /></svg></summary>
+        <nav aria-label="Groups">
+          {groups.map((g) => (
+            <a href={`/g/${g.slug}/`} aria-current={g.slug === group ? 'page' : undefined}>{g.heading} <span>{inGroup(g).length}</span></a>
+          ))}
+        </nav>
+      </details>
     </header>
     <main id="main">
       <slot />
@@ -42,14 +49,60 @@ const path = Astro.url.pathname;
   </body>
 </html>
 
+<script>
+  // The small-screen menu closes on Escape or a click outside it.
+  const menu = document.querySelector<HTMLDetailsElement>('details.menu');
+  if (menu) {
+    document.addEventListener('click', (e) => { if (menu.open && !menu.contains(e.target as Node)) menu.open = false; });
+    menu.addEventListener('keydown', (e) => {
+      if (e.key !== 'Escape' || !menu.open) return;
+      menu.open = false;
+      menu.querySelector('summary')?.focus();
+    });
+  }
+</script>
+
 <style>
   .skip { position: absolute; left: var(--margin); top: -3rem; padding: 0.5rem 0.75rem; background: var(--ink); color: var(--bg); border-radius: 4px; z-index: 10; }
   .skip:focus { top: 0.75rem; }
-  .bar { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; height: 4.5rem; }
-  .brand { display: inline-flex; align-items: center; gap: 0.625rem; font-weight: 500; }
-  .mark { width: 1.25rem; height: 1.25rem; color: var(--ink); }
-  nav { display: flex; gap: 1.5rem; color: var(--muted); }
-  nav a { transition: color 160ms ease; }
+  .bar { position: relative; z-index: 20; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; height: 4.5rem; }
+  .brand { display: inline-flex; align-items: center; gap: 0.625rem; font-weight: 500; white-space: nowrap; }
+  .mark { width: 1.25rem; height: 1.25rem; color: var(--ink); transition: transform 300ms var(--ease-out); }
+  .groups { display: flex; gap: 1.5rem; color: var(--muted); }
+  nav a { white-space: nowrap; transition: color 160ms ease; }
+  nav a[aria-current] { color: var(--ink); }
   nav span { margin-left: 0.25rem; font-variant-numeric: tabular-nums; opacity: 0.7; }
-  @media (hover: hover) and (pointer: fine) { nav a:hover { color: var(--ink); } }
+  @media (hover: hover) and (pointer: fine) {
+    nav a:hover { color: var(--ink); }
+    .brand:hover .mark { transform: rotate(90deg); }
+  }
+
+  .menu { display: none; position: relative; }
+  .menu summary {
+    display: inline-flex; align-items: center; gap: 0.375rem; height: 2.5rem; padding-inline: 0.875rem;
+    border-radius: 999px; background: var(--surface); cursor: pointer; list-style: none;
+  }
+  .menu summary::-webkit-details-marker { display: none; }
+  .menu summary svg { width: 0.875rem; height: 0.875rem; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; transition: transform 200ms var(--ease-out); }
+  .menu[open] summary svg { transform: rotate(180deg); }
+  /* A floating menu, so it may carry a shadow. */
+  .menu nav {
+    position: absolute; right: 0; top: calc(100% + 0.5rem);
+    display: grid; min-width: 14rem; padding: 0.375rem;
+    background: var(--surface-2); border-radius: 10px; color: var(--muted);
+    box-shadow: 0 16px 40px rgb(0 0 0 / 0.5);
+    transform-origin: top right;
+    animation: menu-in 180ms var(--ease-out);
+  }
+  .menu nav a { display: flex; justify-content: space-between; padding: 0.625rem 0.75rem; border-radius: 6px; }
+  .menu nav a[aria-current] { background: var(--surface); }
+  @keyframes menu-in { from { opacity: 0; transform: scale(0.96) translateY(-4px); } }
+
+  @media (max-width: 1080px) {
+    .groups { display: none; }
+    .menu { display: block; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .menu nav { animation: none; }
+  }
 </style>

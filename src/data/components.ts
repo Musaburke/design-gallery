@@ -2,7 +2,26 @@
 // `entry` is the component the pages render; `files` are shown as code, in order.
 // Paths in `files` are relative to src/ so shared helpers (lib/stage.ts) can be listed too.
 
-export type Group = 'Backgrounds' | 'Motion';
+export type Group = 'Backgrounds' | 'Motion' | 'Navigation' | 'Sections' | 'Surfaces';
+
+export interface GroupInfo {
+  group: Group;
+  /** Page at /g/<slug>/. */
+  slug: string;
+  heading: string;
+  line: string;
+  /** The component that stands for the group on the landing page. */
+  feature: string;
+}
+
+// In page order. The landing page, the group pages and the header all read this.
+export const groups: GroupInfo[] = [
+  { group: 'Backgrounds', slug: 'backgrounds', heading: 'Backgrounds', line: 'Living fields that sit behind everything else on a page.', feature: 'starfield' },
+  { group: 'Motion', slug: 'motion', heading: 'Motion and effects', line: 'Effects that play once, run on a loop or follow the cursor.', feature: 'liquid-orb' },
+  { group: 'Navigation', slug: 'navigation', heading: 'Navigation', line: 'Ways around a site, from the first menu to the last link.', feature: 'drawer-nav' },
+  { group: 'Sections', slug: 'sections', heading: 'Page sections', line: 'Reviews that slide past and answers that open in place.', feature: 'reviews-marquee' },
+  { group: 'Surfaces', slug: 'surfaces', heading: 'Surfaces', line: 'Materials for panels and cards, starting with the glass.', feature: 'glass-card' },
+];
 
 export interface GalleryComponent {
   slug: string;
@@ -147,6 +166,97 @@ export const components: GalleryComponent[] = [
     ],
     tall: true,
   },
+  {
+    slug: 'drawer-nav',
+    name: 'Drawer navbar',
+    group: 'Navigation',
+    blurb: 'A monogram and a burger that folds into a cross. The menu slides in from the side on glass, and its links follow one by one.',
+    origin: { repo: 'portfolio', path: 'src/components/Header.astro' },
+    entry: 'DrawerNav.astro',
+    files: ['gallery/drawer-nav/DrawerNav.astro', 'lib/preview.ts'],
+    uses: ['CSS', 'backdrop-filter', 'TypeScript'],
+    ground: '#1c1c1c',
+    changes: [
+      'The header, scrim and drawer sit inside the frame instead of being fixed to the window, over a sample page that scrolls.',
+      'The open state is a class on the demo, not on the page, so several can run at once and the page never locks.',
+      'Escape, the scrim and the focus trap work for each instance on its own.',
+      'Placeholder monogram and links.',
+      'In the grid it opens and closes itself on a loop; it stops while the pointer or focus is inside.',
+    ],
+  },
+  {
+    slug: 'link-pyramid',
+    name: 'Link pyramid',
+    group: 'Navigation',
+    blurb: 'A triangle rises from the foot of the page with links in rows and a back-to-top button at its heart. A floating button with a progress ring covers the rest of the scroll.',
+    origin: { repo: 'portfolio', path: 'src/components/Pyramid.astro' },
+    entry: 'LinkPyramid.astro',
+    files: ['gallery/link-pyramid/LinkPyramid.astro', 'lib/preview.ts'],
+    uses: ['CSS clip-path', 'IntersectionObserver', 'SVG'],
+    ground: '#1c1c1c',
+    changes: [
+      'Sits at the end of its own scroll box, so back-to-top scrolls the box, not the page.',
+      'The floating back-to-top button is folded in and follows the box. It hides while the pyramid is in view, as it did on the original.',
+      'The triangle rises again each time it comes back into view, instead of once.',
+      'Placeholder links, with the icons drawn inline.',
+      'In the grid it scrolls down to the pyramid and back on a loop; it stops while the pointer or focus is inside.',
+    ],
+    tall: true,
+  },
+  {
+    slug: 'reviews-marquee',
+    name: 'Reviews marquee',
+    group: 'Sections',
+    blurb: 'Review cards on glass slide past in a strip with no end. A moving mouse pauses it so a card can be read.',
+    origin: { repo: 'DBS-cleaning', path: 'src/components/sections/ReviewsHome.astro' },
+    entry: 'ReviewsMarquee.astro',
+    files: ['gallery/reviews-marquee/ReviewsMarquee.astro'],
+    uses: ['CSS', 'Container queries', 'backdrop-filter'],
+    ground: '#0a0a0a',
+    changes: [
+      'Sample reviews with made-up first names instead of real customers.',
+      'Scoped CSS and inline SVG instead of Tailwind classes and an icon library.',
+      'Card widths follow the frame instead of the window.',
+      'Set in the gallery font instead of Barlow.',
+    ],
+  },
+  {
+    slug: 'faq-accordion',
+    name: 'FAQ accordion',
+    group: 'Sections',
+    blurb: 'Questions that open in place to show their answer, one at a time. Works without JavaScript.',
+    origin: { repo: 'DBS-cleaning', path: 'src/components/sections/FAQList.tsx' },
+    entry: 'FaqAccordion.astro',
+    files: ['gallery/faq-accordion/FaqAccordion.astro'],
+    uses: ['details', '::details-content', 'CSS'],
+    ground: '#0a0a0a',
+    changes: [
+      'Rebuilt with details and summary instead of a React accordion, so it needs no framework and opens without JavaScript.',
+      'One open at a time through the name attribute, as the original allowed.',
+      'The slide uses ::details-content where the browser supports it and snaps open where it does not.',
+      'Questions about the component itself instead of the client\'s.',
+      'Set in the gallery font instead of Barlow.',
+    ],
+  },
+  {
+    slug: 'glass-card',
+    name: 'Glass card',
+    group: 'Surfaces',
+    blurb: 'A frosted panel: a dark tint, an 18px blur with a little extra saturation, and a faint inner edge.',
+    origin: { repo: 'portfolio', path: 'src/components/Contact.astro' },
+    entry: 'GlassCard.astro',
+    files: ['gallery/glass-card/GlassCard.astro'],
+    uses: ['backdrop-filter', 'CSS'],
+    ground: '#1c1c1c',
+    changes: [
+      'The glass tokens and class come with the card, so it stands on its own.',
+      'Slow drifting shapes behind it give the blur something to bend; the original sits over the starfield.',
+      'Placeholder heading, line and actions.',
+      'Falls back to a solid tint where backdrop-filter is not supported.',
+    ],
+  },
 ];
 
 export const bySlug = (slug: string) => components.find((c) => c.slug === slug);
+export const groupOf = (c: GalleryComponent) => groups.find((g) => g.group === c.group)!;
+export const inGroup = (g: GroupInfo) => components.filter((c) => c.group === g.group);
