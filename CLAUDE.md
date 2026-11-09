@@ -1,8 +1,13 @@
 # Design gallery
 
-Musa's component gallery: every background and effect from his sites, running live, with its code. Local only, private repo, not deployed.
+Musa's component gallery: every background and effect from his sites, running live, with its code. Private repo, deployed free on Cloudflare Pages (`*.pages.dev`, no custom domain): every push to `main` deploys.
 
 Stack: Astro 7, TypeScript, Tailwind 4, `three`. Run with `npm run dev`. Check with `npm run check`.
+
+## Deploy
+- Cloudflare Pages, connected to the GitHub repo. Build `npm run build`, output `dist`, Node from `.node-version`.
+- `public/_headers` sets the security headers and an enforced CSP. Same-origin framing is allowed because `/skills/<id>/` shows each demo in an iframe. A new external script, font or image host needs adding to the CSP, or it is blocked on the live site (the dev server ignores `_headers`).
+- The site is public even though the repo is private: placeholders only, no personal data, no source repos.
 
 ## How it works
 - `src/data/components.ts` is the one list. Each entry points at `src/gallery/<slug>/`.
@@ -12,12 +17,12 @@ Stack: Astro 7, TypeScript, Tailwind 4, `three`. Run with `npm run dev`. Check w
 - `/` is the landing page: a jump list and one tile per group, led by its `feature` demo. Those demos are `inert`, so they play but take no clicks; the tile is one link.
 - `/g/<slug>/` is a group's grid of live previews. The grid layout follows the count (1, 2, 3 or 5 across). `/c/<slug>/` is the full demo, the code and what changed.
 - Demos inside `[data-preview]` (grid cards and landing tiles) may play themselves. `src/lib/preview.ts` says when: on screen, tab visible, no pointer or focus inside. The drawer and the pyramid use it; scroll reveal has its own copy.
-- `origin` (the source repo and path) stays in `components.ts` but is hidden on the pages for now. Musa will confirm before it comes back. No site names in visible text, `changes` or code comments.
+- A component shows its preview and its code, nothing else. No source repos, site names, or notes on what changed, in the data, visible text or code comments (Musa, 9 Nov 2026).
 
 ## Adding a component
 1. Copy the original into `src/gallery/<slug>/`. It's a snapshot, not a link to the other repo.
 2. Make it fill its parent instead of the window. It must handle several instances on one page and pause off screen. Three.js loads lazily when in view. Respect `prefers-reduced-motion`.
-3. Add an entry to `components.ts` with `origin`, `ground` (the source site's background colour) and `changes` (what was altered for the gallery). A new group needs an entry in `groups` too.
+3. Add an entry to `components.ts` with `ground` (the background colour the demo sits on). A new group needs an entry in `groups` too.
 4. Check the landing tile, the group grid and the detail page in a browser with zero console errors.
 5. Glass: check `backdrop-filter` survives in the built CSS (`dist/_astro/*.css`). One minifier once kept only the `-webkit-` copy, which left Chrome with no blur.
 
