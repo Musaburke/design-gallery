@@ -1,0 +1,26 @@
+---
+import Base from '../layouts/Base.astro';
+import { groups } from '../data/components';
+---
+<Base title="Not found · Design gallery" description="This page does not exist.">
+  <div class="wrap">
+    <div class="intro">
+      <h1>Nothing here</h1>
+      <p>This page doesn’t exist, or it moved. Pick a group instead.</p>
+      <ul>
+        {groups.map((g) => <li><a href={`/g/${g.slug}/`}>{g.heading}</a></li>)}
+        <li><a href="/skills/">Skill demos</a></li>
+        <li><a href="/">All groups</a></li>
+      </ul>
+    </div>
+  </div>
+</Base>
+
+<style>
+  .intro { padding-block: clamp(3rem, 8vw, 6rem); max-width: 40rem; }
+  h1 { font-size: clamp(2.5rem, 1.2rem + 5vw, 5rem); line-height: 0.95; letter-spacing: -0.04em; }
+  p { margin-top: 1rem; font-size: 1.0625rem; }
+  ul { display: grid; gap: 0.25rem; margin-top: 2rem; }
+  a { display: inline-block; padding-block: 0.5rem; font-size: 1.25rem; text-decoration: underline; text-underline-offset: 0.25em; text-decoration-thickness: 1px; transition: color 160ms ease; }
+  @media (hover: hover) and (pointer: fine) { a:hover { color: var(--accent); } }
+</style>
