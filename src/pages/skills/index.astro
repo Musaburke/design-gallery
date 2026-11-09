@@ -98,8 +98,7 @@ const fresh = (u: NonNullable<ReturnType<typeof usageOf>>) => u.tokens.input + u
 </Base>
 
 <style>
-  .back { display: inline-flex; align-items: center; gap: 0.375rem; margin-top: 1rem; color: var(--muted); font-size: var(--t-meta); transition: color 160ms ease; }
-  .back svg, .brief svg, .arrow { width: 0.875rem; height: 0.875rem; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; transition: transform 200ms var(--ease-out), stroke 160ms ease; }
+  .brief svg, .arrow { width: 0.875rem; height: 0.875rem; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; transition: transform 200ms var(--ease-out), stroke 160ms ease; }
   .intro { padding-block: 1.25rem 3rem; max-width: 46rem; }
   h1 { font-size: clamp(2.25rem, 1.4rem + 3vw, 3.75rem); line-height: 1; letter-spacing: -0.035em; }
   h1 span { color: var(--muted); font-size: var(--t-title); font-weight: 400; letter-spacing: 0; margin-left: 0.25rem; font-variant-numeric: tabular-nums; }
@@ -117,7 +116,7 @@ const fresh = (u: NonNullable<ReturnType<typeof usageOf>>) => u.tokens.input + u
   .skill { color: var(--muted); font-size: 0.9375rem; grid-row: 2; }
   .skill code { font-family: var(--mono); font-size: 0.875rem; }
   .line { grid-column: 2; grid-row: 1 / span 2; max-width: 52ch; }
-  .open { grid-column: 3; grid-row: 1; color: var(--muted); font-size: 0.9375rem; text-decoration: underline; text-underline-offset: 0.25em; text-decoration-thickness: 1px; white-space: nowrap; transition: color 160ms ease; }
+  .open { grid-column: 3; grid-row: 1; padding-block: 0.625rem; margin-block: -0.625rem; color: var(--muted); font-size: 0.9375rem; text-decoration: underline; text-underline-offset: 0.25em; text-decoration-thickness: 1px; white-space: nowrap; transition: color 160ms ease; }
   .stats { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 0.25rem 1.25rem; margin-top: 0.5rem; color: var(--muted); font-size: 0.9375rem; font-variant-numeric: tabular-nums; }
   .stats span:first-child { color: var(--ink); }
 
@@ -133,12 +132,11 @@ const fresh = (u: NonNullable<ReturnType<typeof usageOf>>) => u.tokens.input + u
   thead th { font-weight: 400; font-size: var(--t-meta); color: var(--muted); border-bottom: 1px solid var(--line); }
   tbody tr { border-bottom: 1px solid var(--line); }
   tbody th { font-weight: 500; }
-  tbody th a { text-decoration: underline; text-underline-offset: 0.25em; text-decoration-thickness: 1px; }
+  tbody th a { display: inline-block; padding-block: 0.375rem; margin-block: -0.375rem; text-decoration: underline; text-underline-offset: 0.25em; text-decoration-thickness: 1px; }
   tfoot th, tfoot td { color: var(--muted); }
 
   @media (hover: hover) and (pointer: fine) {
-    .back:hover, .open:hover { color: var(--ink); }
-    .back:hover svg { transform: translateX(-3px); }
+    .open:hover { color: var(--ink); }
     .brief:hover svg, h2 a:hover .arrow { transform: translateX(3px); stroke: var(--accent); }
   }
 
