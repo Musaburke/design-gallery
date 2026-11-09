@@ -1,0 +1,171 @@
+---
+// A notes graph drawn the way Obsidian's graph view draws one: notes as dots coloured by
+// folder, links as lines. Each note drifts around its home, links act as springs, and
+// hovering a note lights it and its links. Drag a note to pull its neighbours.
+// Without JavaScript it is a still picture. Placeholder graph from graph.ts: feed in real
+// nodes and links in the same shape.
+import { makeGraph } from './graph';
+const graph = makeGraph();
+const { width, height, nodes, edges, folders } = graph;
+// One colour per folder, read on the dark panel.
+const tones = ['#e6efe7', '#f0b67f', '#6fd3c1', '#f2d479'];
+---
+<figure class="graph" data-graph={JSON.stringify(graph)}>
+  <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label={`A sample graph of ${nodes.length} notes joined by ${edges.length} links, in ${folders.length} folders`}>
+    <g class="graph-links">
+      {edges.map(([a, b]) => <line x1={nodes[a]!.x} y1={nodes[a]!.y} x2={nodes[b]!.x} y2={nodes[b]!.y} />)}
+    </g>
+    <g class="graph-nodes">
+      {nodes.map((n) => <circle cx={n.x} cy={n.y} r={n.r} fill={tones[n.g % tones.length]} />)}
+    </g>
+  </svg>
+  <figcaption>
+    <ul class="graph-key">
+      {folders.map((f, g) => <li><i style={`background:${tones[g % tones.length]}`}></i>{f}</li>)}
+    </ul>
+    <span class="graph-hint">Drag a note to pull its links.</span>
+  </figcaption>
+</figure>
+
+<style>
+  .graph { position: absolute; inset: 0; margin: 0; padding: 4cqh 4cqw; display: flex; flex-direction: column; background: #17211c; container-type: size; }
+  .graph svg { flex: 1; min-height: 0; width: 100%; display: block; }
+  .graph-links line { stroke: #4a6a5a; stroke-width: 0.9; transition: stroke 160ms ease, opacity 160ms ease; }
+  .graph-nodes circle { stroke: #17211c; stroke-width: 1.5; cursor: grab; touch-action: none; transform-box: fill-box; transform-origin: center; transition: opacity 160ms ease, transform 200ms cubic-bezier(0.23, 1, 0.32, 1); }
+  @media (hover: hover) and (pointer: fine) { .graph-nodes circle:hover { transform: scale(1.5); } }
+  .graph.dragging, .graph.dragging circle { cursor: grabbing; }
+  .graph svg:global(.focus) .graph-nodes circle:not(:global(.hl)) { opacity: 0.22; }
+  .graph svg:global(.focus) .graph-links line:not(:global(.hl)) { opacity: 0.1; }
+  .graph svg:global(.focus) .graph-links line:global(.hl) { stroke: #cfe6d6; stroke-width: 1.3; }
+  .graph svg:global(.focus) .graph-nodes circle:global(.hl) { transform: scale(1.25); }
+  figcaption { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.5rem 1rem; padding-top: 0.5rem; color: #a9bcb0; font-size: 0.8125rem; }
+  .graph-key { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 0; padding: 0; list-style: none; color: #dbe6de; }
+  .graph-key li { display: inline-flex; align-items: center; gap: 7px; }
+  .graph-key i { width: 10px; height: 10px; border-radius: 50%; }
+  .graph-hint { color: #cfe6d6; }
+  @container (max-height: 300px) { figcaption { display: none; } }
+  @media (prefers-reduced-motion: reduce) { .graph-links line, .graph-nodes circle { transition: none; } }
+</style>
+
+<script>
+  import type { Graph } from './graph';
+
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  document.querySelectorAll<HTMLElement>('[data-graph]').forEach((fig) => {
+    const graph = JSON.parse(fig.dataset.graph!) as Graph;
+    const svg = fig.querySelector('svg')!;
+    const dots = [...svg.querySelectorAll<SVGCircleElement>('.graph-nodes circle')];
+    const lines = [...svg.querySelectorAll<SVGLineElement>('.graph-links line')];
+    const { nodes, edges } = graph;
+
+    // Home is the computed layout; each note floats around its home on its own slow orbit.
+    const home = nodes.map((n) => ({ x: n.x, y: n.y }));
+    const pos = nodes.map((n) => ({ x: n.x, y: n.y, vx: 0, vy: 0 }));
+    const phase = nodes.map((_, i) => i * 2.399);
+    const rest = edges.map(([a, b]) => Math.hypot(home[a]!.x - home[b]!.x, home[a]!.y - home[b]!.y));
+    const near: number[][] = nodes.map(() => []);
+    edges.forEach(([a, b], k) => { near[a]!.push(k); near[b]!.push(k); });
+
+    let dragged = -1;
+    let visible = false;
+    let raf = 0;
+    let last = 0;
+
+    const draw = () => {
+      dots.forEach((c, i) => { c.setAttribute('cx', pos[i]!.x.toFixed(1)); c.setAttribute('cy', pos[i]!.y.toFixed(1)); });
+      lines.forEach((l, k) => {
+        const [a, b] = edges[k]!;
+        l.setAttribute('x1', pos[a]!.x.toFixed(1)); l.setAttribute('y1', pos[a]!.y.toFixed(1));
+        l.setAttribute('x2', pos[b]!.x.toFixed(1)); l.setAttribute('y2', pos[b]!.y.toFixed(1));
+      });
+    };
+
+    const step = (t: number) => {
+      const dt = Math.min(2, (t - (last || t)) / 16.7);
+      last = t;
+      const s = t / 1000;
+      // Pull toward a drifting home, so the whole graph breathes.
+      pos.forEach((p, i) => {
+        if (i === dragged) return;
+        const drift = reduce ? 0 : 4.5;
+        const hx = home[i]!.x + Math.sin(s * 0.8 + phase[i]!) * drift;
+        const hy = home[i]!.y + Math.cos(s * 0.7 + phase[i]!) * drift;
+        p.vx += (hx - p.x) * 0.012 * dt;
+        p.vy += (hy - p.y) * 0.012 * dt;
+      });
+      // Links act as springs, so a dragged note tugs its neighbours.
+      edges.forEach(([a, b], k) => {
+        const pa = pos[a]!, pb = pos[b]!;
+        const dx = pb.x - pa.x, dy = pb.y - pa.y;
+        const d = Math.hypot(dx, dy) || 0.01;
+        const f = (d - rest[k]!) * 0.02 * dt;
+        const fx = (dx / d) * f, fy = (dy / d) * f;
+        if (a !== dragged) { pa.vx += fx; pa.vy += fy; }
+        if (b !== dragged) { pb.vx -= fx; pb.vy -= fy; }
+      });
+      pos.forEach((p, i) => {
+        if (i === dragged) return;
+        p.vx *= 0.86; p.vy *= 0.86;
+        p.x += p.vx * dt; p.y += p.vy * dt;
+      });
+      draw();
+      const moving = pos.some((p) => Math.abs(p.vx) + Math.abs(p.vy) > 0.02);
+      raf = (visible && !document.hidden && (!reduce || dragged >= 0 || moving)) ? requestAnimationFrame(step) : 0;
+    };
+    const start = () => { if (!raf && visible && !document.hidden) { last = 0; raf = requestAnimationFrame(step); } };
+
+    new IntersectionObserver(([e]) => { visible = !!e?.isIntersecting; if (visible) start(); }).observe(fig);
+    document.addEventListener('visibilitychange', start);
+
+    // Hover or drag: light the note and its links, dim the rest.
+    const focus = (i: number) => {
+      svg.classList.toggle('focus', i >= 0);
+      dots.forEach((c) => c.classList.remove('hl'));
+      lines.forEach((l) => l.classList.remove('hl'));
+      if (i < 0) return;
+      dots[i]!.classList.add('hl');
+      near[i]!.forEach((k) => {
+        lines[k]!.classList.add('hl');
+        const [a, b] = edges[k]!;
+        dots[a === i ? b : a]!.classList.add('hl');
+      });
+    };
+    dots.forEach((c, i) => {
+      c.addEventListener('pointerenter', () => { if (dragged < 0) focus(i); });
+      c.addEventListener('pointerleave', () => { if (dragged < 0) focus(-1); });
+    });
+
+    const toSvg = (e: PointerEvent) => {
+      const pt = new DOMPoint(e.clientX, e.clientY).matrixTransform(svg.getScreenCTM()!.inverse());
+      return { x: pt.x, y: pt.y };
+    };
+    svg.addEventListener('pointerdown', (e) => {
+      const i = dots.indexOf(e.target as SVGCircleElement);
+      if (i < 0) return;
+      e.preventDefault();
+      dragged = i;
+      svg.setPointerCapture(e.pointerId);
+      fig.classList.add('dragging');
+      focus(i);
+      start();
+    });
+    svg.addEventListener('pointermove', (e) => {
+      if (dragged < 0) return;
+      const p = toSvg(e);
+      pos[dragged]!.x = p.x; pos[dragged]!.y = p.y;
+      pos[dragged]!.vx = 0; pos[dragged]!.vy = 0;
+      if (reduce) draw();
+      start();
+    });
+    const drop = () => {
+      if (dragged < 0) return;
+      dragged = -1;
+      fig.classList.remove('dragging');
+      focus(-1);
+      start();
+    };
+    svg.addEventListener('pointerup', drop);
+    svg.addEventListener('pointercancel', drop);
+  });
+</script>

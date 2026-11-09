@@ -16,11 +16,11 @@ export interface GroupInfo {
 
 // In page order. The landing page, the group pages and the header all read this.
 export const groups: GroupInfo[] = [
-  { group: 'Backgrounds', slug: 'backgrounds', heading: 'Backgrounds', line: 'Living fields that sit behind everything else on a page.', feature: 'starfield' },
+  { group: 'Backgrounds', slug: 'backgrounds', heading: 'Backgrounds', line: 'Living fields that sit behind everything else on a page, or hold the middle of it.', feature: 'starfield' },
   { group: 'Motion', slug: 'motion', heading: 'Motion and effects', line: 'Effects that play once, run on a loop or follow the cursor.', feature: 'liquid-orb' },
   { group: 'Navigation', slug: 'navigation', heading: 'Navigation', line: 'Ways around a site, from the first menu to the last link.', feature: 'drawer-nav' },
   { group: 'Sections', slug: 'sections', heading: 'Page sections', line: 'Reviews that slide past, answers that open in place and project sections on colour.', feature: 'reviews-marquee' },
-  { group: 'Surfaces', slug: 'surfaces', heading: 'Surfaces', line: 'Materials for panels and cards, starting with the glass.', feature: 'glass-card' },
+  { group: 'Surfaces', slug: 'surfaces', heading: 'Surfaces', line: 'Materials for panels and cards: frosted glass and a window for screenshots.', feature: 'glass-card' },
 ];
 
 export interface GalleryComponent {
@@ -63,6 +63,24 @@ export const components: GalleryComponent[] = [
     entry: 'Particles.astro',
     files: ['gallery/particles/Particles.astro'],
     ground: '#0a0a0a',
+  },
+  {
+    slug: 'particle-brain',
+    name: 'Particle brain',
+    group: 'Backgrounds',
+    blurb: 'Nine thousand glowing particles in a sphere, threaded with a faint network. It morphs into a spiral galaxy and back, swells and spins faster with activity, and parts around the cursor.',
+    entry: 'ParticleBrain.astro',
+    files: ['gallery/particle-brain/ParticleBrain.astro', 'gallery/particle-brain/brain.ts', 'lib/preview.ts'],
+    ground: '#0a0a0a',
+  },
+  {
+    slug: 'note-graph',
+    name: 'Note graph',
+    group: 'Backgrounds',
+    blurb: 'Notes as dots coloured by folder and links as lines, the way Obsidian draws a vault. Every note drifts, hovering one lights its links, and dragging one pulls its neighbours along.',
+    entry: 'NoteGraph.astro',
+    files: ['gallery/note-graph/NoteGraph.astro', 'gallery/note-graph/graph.ts'],
+    ground: '#17211c',
   },
   {
     slug: 'liquid-orb',
@@ -116,7 +134,7 @@ export const components: GalleryComponent[] = [
     group: 'Motion',
     blurb: 'Three screenshots fanned out as a tilted, exploded stack that settles flat as it scrolls into view. Scroll inside the box to drive it.',
     entry: 'IsoStack.astro',
-    files: ['gallery/iso-stack/IsoStack.astro', 'gallery/iso-stack/Frame.astro', 'lib/preview.ts'],
+    files: ['gallery/iso-stack/IsoStack.astro', 'gallery/browser-frame/Frame.astro', 'lib/preview.ts'],
     ground: '#1c1c1c',
     tall: true,
   },
@@ -163,7 +181,7 @@ export const components: GalleryComponent[] = [
     group: 'Sections',
     blurb: 'Full-height project sections where a block of the product\'s own colour wipes in behind each one as it arrives, alternating sides. Scroll inside the box to see both.',
     entry: 'SlabSection.astro',
-    files: ['gallery/slab-section/SlabSection.astro', 'gallery/iso-stack/Frame.astro', 'lib/preview.ts'],
+    files: ['gallery/slab-section/SlabSection.astro', 'gallery/browser-frame/Frame.astro', 'lib/preview.ts'],
     ground: '#1c1c1c',
     tall: true,
   },
@@ -174,6 +192,15 @@ export const components: GalleryComponent[] = [
     blurb: 'A frosted panel: a dark tint, an 18px blur with a little extra saturation, and a faint inner edge.',
     entry: 'GlassCard.astro',
     files: ['gallery/glass-card/GlassCard.astro'],
+    ground: '#1c1c1c',
+  },
+  {
+    slug: 'browser-frame',
+    name: 'Browser frame',
+    group: 'Surfaces',
+    blurb: 'Screenshots in a browser window at one fixed ratio, so nothing crops and every shot in a row shares its top edge and width. Inside a link it lifts with a coloured ring.',
+    entry: 'BrowserFrame.astro',
+    files: ['gallery/browser-frame/BrowserFrame.astro', 'gallery/browser-frame/Frame.astro'],
     ground: '#1c1c1c',
   },
 ];
