@@ -1,8 +1,8 @@
 // Static site on Cloudflare Pages: plain files from dist/, no server code.
-// `npm run deploy` checks, builds and uploads to https://design-gallery-6kr.pages.dev. public/_headers applies.
+// Built by Cloudflare Pages from GitHub on merge to main: https://musa-design-gallery.pages.dev. public/_headers applies.
 {
 	"$schema": "./node_modules/wrangler/config-schema.json",
-	"name": "design-gallery",
+	"name": "musa-design-gallery",
 	"compatibility_date": "2026-11-03",
 	"pages_build_output_dir": "./dist"
 }
