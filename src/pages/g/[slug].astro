@@ -18,7 +18,7 @@ interface Props { g: GroupInfo; prev: GroupInfo; next: GroupInfo }
 const { g, prev, next } = Astro.props;
 const items = inGroup(g);
 // The grid follows the count, so no row ends ragged.
-const layout = ({ 1: 'one', 2: 'two', 3: 'three', 5: 'mixed' } as Record<number, string>)[items.length] ?? 'two';
+const layout = ({ 1: 'one', 2: 'two', 3: 'three', 5: 'mixed', 6: 'three' } as Record<number, string>)[items.length] ?? 'two';
 ---
 <Base title={`${g.heading} · Design gallery`} description={g.line} group={g.slug}>
   <div class="wrap">

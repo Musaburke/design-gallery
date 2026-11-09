@@ -1,0 +1,114 @@
+---
+// Full-height project sections. As each one comes into view, a block of the product's
+// own colour wipes in behind it from the side; the next section flips sides.
+// Scroll inside the box to bring each one in, once each.
+// In a grid card (inside [data-preview]) the first section wipes in and out on a loop.
+// No JavaScript or reduced motion: the slabs are simply there.
+// Placeholder products: swap in real names, colours and screenshots.
+import Frame from '../iso-stack/Frame.astro';
+
+interface Item { name: string; line: string; meta: string; slab: string; tone: string; host: string }
+interface Props { items?: Item[] }
+const {
+  items = [
+    { name: 'Northwind', line: 'A booking tool for small studios, from first enquiry to paid invoice.', meta: '2026 · Astro · TypeScript', slab: '#2f5446', tone: '#3b6e5b', host: 'northwind.example' },
+    { name: 'Lumen', line: 'Reading notes that find the passage you half remember.', meta: '2025 · React · SQLite', slab: '#8a4a30', tone: '#c96f4a', host: 'lumen.example' },
+  ],
+} = Astro.props;
+---
+<div class="slabdemo" data-slab-demo>
+  <div class="scroller" tabindex="0" aria-label="Colour slab sections demo. Scroll to bring each section in.">
+    {items.map((p, i) => (
+      <article class:list={['project', { flip: i % 2 === 1 }]} style={`--slab: ${p.slab}`} data-project>
+        <div class="slab" aria-hidden="true"></div>
+        <div class="grid">
+          <div class="text">
+            <h3>{p.name}</h3>
+            <p class="line">{p.line}</p>
+            <p class="meta">{p.meta}</p>
+            <a class="btn" href="#" onclick="return false">Read the case study</a>
+          </div>
+          <div class="media"><Frame tone={p.tone} host={p.host} /></div>
+        </div>
+      </article>
+    ))}
+  </div>
+</div>
+
+<style>
+  .slabdemo {
+    --sl-ink: #f1f1ef; --sl-soft: #b4b5af; --sl-ease: cubic-bezier(0.23, 1, 0.32, 1);
+    position: absolute; inset: 0; color: var(--sl-ink); container-type: size;
+  }
+  .scroller { height: 100%; overflow-y: auto; scrollbar-width: thin; }
+  .project { position: relative; min-height: 100cqh; display: flex; align-items: center; overflow: hidden; }
+  .slab {
+    position: absolute; top: 14%; bottom: 14%; right: 0; width: 54%;
+    background: var(--slab);
+    transform: scaleX(0); transform-origin: right;
+    transition: transform 1200ms var(--sl-ease);
+  }
+  .flip .slab { right: auto; left: 0; transform-origin: left; }
+  .slabdemo:not(.js) .slab, .project.in .slab { transform: none; }
+
+  .grid { position: relative; width: 100%; display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 6cqw; align-items: center; padding: 0 7cqw; }
+  .flip .grid { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); }
+  .flip .text { order: 2; }
+  h3 { margin: 0; font-size: clamp(1.5rem, 6cqw, 3.25rem); font-weight: 500; letter-spacing: -0.03em; line-height: 1.05; }
+  .line { margin: 0.75rem 0 0; color: var(--sl-ink); font-size: clamp(0.875rem, 1.9cqw, 1.0625rem); max-width: 34ch; }
+  .meta { margin: 0.75rem 0 0; color: var(--sl-soft); font-size: clamp(0.75rem, 1.5cqw, 0.875rem); }
+  .btn {
+    display: inline-flex; align-items: center; margin-top: 1.25rem; height: 2.5rem; padding: 0 1.125rem; border-radius: 999px;
+    background: var(--sl-ink); color: #141414; font-size: 0.875rem; font-weight: 500; text-decoration: none;
+    transition: background-color 160ms ease, transform 160ms var(--sl-ease);
+  }
+  .btn:hover { background: #fff; }
+  .btn:active { transform: scale(0.97); }
+  .btn:focus-visible { outline: 2px solid #9fd09c; outline-offset: 3px; }
+
+  /* Narrow boxes: picture above, words below, the slab a band behind the picture. */
+  /* Grid cards keep the side-by-side layout, so the name shows next to the picture. */
+  @container (max-width: 560px) {
+    .slabdemo:not(.auto) .grid { grid-template-columns: minmax(0, 1fr); gap: 1.5rem; }
+    .slabdemo:not(.auto) .text { order: 2; }
+    .slabdemo:not(.auto) .slab { top: 10%; bottom: auto; height: 40%; width: 100%; }
+  }
+  /* A card is too small for the button. */
+  @container (max-height: 420px) { .btn, .meta { display: none; } }
+
+  .auto .scroller { overflow: hidden; }
+  @media (prefers-reduced-motion: reduce) { .slab { transform: none; transition: none; } .btn:active { transform: none; } }
+</style>
+
+<script>
+  import { playsItself, whenFree } from '../../lib/preview';
+
+  document.querySelectorAll<HTMLElement>('[data-slab-demo]').forEach((root) => {
+    root.classList.add('js');
+    const scroller = root.querySelector<HTMLElement>('.scroller');
+    const projects = [...root.querySelectorAll<HTMLElement>('[data-project]')];
+    if (!scroller || !projects.length) return;
+
+    if (!playsItself(root)) {
+      // Each section gets its slab once, when a third of it is in the box.
+      const io = new IntersectionObserver((entries) => {
+        for (const e of entries) if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+      }, { root: scroller, threshold: 0.35 });
+      projects.forEach((p) => io.observe(p));
+      return;
+    }
+
+    // In a card: the first section's slab wipes in, holds, wipes out, rests, repeat.
+    root.classList.add('auto');
+    const first = projects[0]!;
+    let timer = 0;
+    const step = (on: boolean) => {
+      first.classList.toggle('in', on);
+      timer = window.setTimeout(() => step(!on), on ? 3200 : 1600);
+    };
+    whenFree(root, (free) => {
+      clearTimeout(timer);
+      if (free) timer = window.setTimeout(() => step(!first.classList.contains('in')), 600);
+    });
+  });
+</script>

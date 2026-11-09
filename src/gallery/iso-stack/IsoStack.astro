@@ -1,0 +1,92 @@
+---
+// Three screenshots as an isometric, exploded stack that settles flat as it scrolls
+// into view (--p goes 0 to 1). Scroll inside the box to drive it.
+// In a grid card (inside [data-preview]) it tilts open and settles on a loop instead.
+// Reduced motion and no JavaScript get the flat state.
+// On a real page, measure against the window instead of the scroll box.
+import Frame from './Frame.astro';
+---
+<div class="isodemo" data-iso-demo>
+  <div class="scroller" tabindex="0" aria-label="Isometric stack demo. Scroll to flatten the stack.">
+    <p class="lead">Scroll down to settle the stack</p>
+    <div class="iso" data-iso>
+      <div class="plane">
+        <div class="layer b2"><Frame tone="#c96f4a" /></div>
+        <div class="layer b1"><Frame tone="#6b7fa8" /></div>
+        <div class="layer front"><Frame tone="#3b6e5b" /></div>
+      </div>
+    </div>
+    <div class="tail"></div>
+  </div>
+</div>
+
+<style>
+  .isodemo { position: absolute; inset: 0; container-type: size; color: #b4b5af; }
+  .scroller { height: 100%; overflow-y: auto; scrollbar-width: thin; display: flex; flex-direction: column; align-items: center; }
+  .lead { flex: 0 0 70cqh; display: flex; align-items: flex-end; padding-bottom: 2rem; margin: 0; font-size: 0.9375rem; }
+  .tail { flex: 0 0 45cqh; }
+  .iso { --p: 1; flex: none; width: min(62cqw, 100cqh); perspective: 2400px; }
+  .plane {
+    --q: calc(1 - var(--p));
+    position: relative; transform-style: preserve-3d;
+    transform: rotateX(calc(var(--q) * 52deg)) rotateZ(calc(var(--q) * -38deg)) scale(calc(0.86 + var(--p) * 0.14));
+  }
+  .layer { transform-style: preserve-3d; }
+  .front { position: relative; transform: translateZ(calc(var(--q) * 120px)); }
+  .b1, .b2 { position: absolute; inset: 0; }
+  /* Exploded below the front card while tilted; fanned slightly behind it once flat. */
+  .b1 { transform: translateZ(calc(var(--q) * 20px)) translate(calc(var(--p) * 3.5%), calc(var(--p) * 5%)); opacity: calc(0.55 + var(--q) * 0.45); }
+  .b2 { transform: translateZ(calc(var(--q) * -80px)) translate(calc(var(--p) * 7%), calc(var(--p) * 10%)); opacity: calc(0.3 + var(--q) * 0.7); }
+
+  /* In a grid card it plays itself, so there is nothing to scroll. */
+  .auto .scroller { overflow: hidden; justify-content: center; }
+  .auto .lead, .auto .tail { display: none; }
+</style>
+
+<script>
+  import { playsItself, whenFree } from '../../lib/preview';
+
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const ease = (x: number) => 1 - Math.pow(1 - x, 3);
+
+  // Scroll mode: 0 while the stack enters at the bottom, 1 once its middle reaches the middle of the box.
+  function byScroll(scroller: HTMLElement, iso: HTMLElement) {
+    let ticking = false;
+    const update = () => {
+      ticking = false;
+      const s = scroller.getBoundingClientRect(), r = iso.getBoundingClientRect();
+      const raw = (s.height - (r.top - s.top)) / (s.height * 0.5 + r.height * 0.5);
+      iso.style.setProperty('--p', ease(Math.min(1, Math.max(0, raw))).toFixed(4));
+    };
+    scroller.addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } }, { passive: true });
+    new ResizeObserver(update).observe(scroller);
+    update();
+  }
+
+  // Card mode: open, settle, hold, open again. Stops off screen and while someone reaches for it.
+  function byLoop(root: HTMLElement, iso: HTMLElement) {
+    root.classList.add('auto');
+    const HOLD = 1400, MOVE = 1800;
+    const cycle = HOLD * 2 + MOVE * 2;
+    let raf = 0, start = 0, paused = 0;
+    const tick = (t: number) => {
+      const k = (t - start) % cycle;
+      const p = k < HOLD ? 0 : k < HOLD + MOVE ? ease((k - HOLD) / MOVE)
+        : k < HOLD * 2 + MOVE ? 1 : 1 - ease((k - HOLD * 2 - MOVE) / MOVE);
+      iso.style.setProperty('--p', p.toFixed(4));
+      raf = requestAnimationFrame(tick);
+    };
+    iso.style.setProperty('--p', '0');
+    whenFree(root, (free) => {
+      if (free) { start = performance.now() - paused; raf = requestAnimationFrame(tick); }
+      else { cancelAnimationFrame(raf); paused = (performance.now() - start) % cycle; }
+    });
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-iso-demo]').forEach((root) => {
+    const scroller = root.querySelector<HTMLElement>('.scroller');
+    const iso = root.querySelector<HTMLElement>('[data-iso]');
+    if (!scroller || !iso || reduce) return;
+    playsItself(root) ? byLoop(root, iso) : byScroll(scroller, iso);
+  });
+</script>
