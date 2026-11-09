@@ -1,0 +1,153 @@
+---
+import Base from '../../layouts/Base.astro';
+import { skillDemos, pageOf, thumbOf, usageOf, prices, fmt } from '../../data/skill-demos';
+
+const rows = skillDemos.map((d) => ({ d, u: usageOf(d) }));
+const model = rows.find((r) => r.u)?.u?.model ?? 'claude-opus-5-5';
+const p = prices[model]!;
+const fresh = (u: NonNullable<ReturnType<typeof usageOf>>) => u.tokens.input + u.tokens.cache_write_5m + u.tokens.cache_write_1h;
+---
+<Base title="Skill demos · Design gallery" description="One made-up landing page built once per design skill, side by side." group="skills">
+  <div class="wrap">
+    <a class="back" href="/"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M13 8H3M7 4L3 8l4 4" /></svg>All groups</a>
+
+    <div class="intro">
+      <h1>Skill demos <span>{skillDemos.length}</span></h1>
+      <p>One made-up product, Tallbook, built {skillDemos.length} times. Each version came from a fresh agent allowed one design skill, or none at all. Same brief, same words, so only the design changes.</p>
+      <a class="brief" href="/skills/brief/">Read the brief<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" /></svg></a>
+    </div>
+
+    <ul class="plates">
+      {skillDemos.map((d) => (
+        <li class="plate">
+          <div class="shots">
+            <img src={thumbOf(d, 'desktop')} width="1440" height="900" loading="lazy" decoding="async" alt={`${d.name}: the first screen of the Tallbook page at desktop width.`} />
+            <img src={thumbOf(d, 'mobile')} width="390" height="844" loading="lazy" decoding="async" alt={`${d.name}: the first screen at phone width.`} />
+          </div>
+          <div class="caption">
+            <h2><a href={`/skills/${d.id}/`}>{d.name}<svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" /></svg></a></h2>
+            <p class="skill">{d.skill ? <code translate="no">{d.skill}</code> : 'No skill loaded'}</p>
+            <p class="line">{d.line}</p>
+            <a class="open" href={pageOf(d)}>Open the page on its own</a>
+            {usageOf(d) && (
+              <p class="stats">
+                <span>{fmt.usd(usageOf(d)!.costUsd)} at API prices</span>
+                <span>{fmt.compact(usageOf(d)!.tokens.output)} tokens written</span>
+                <span>{usageOf(d)!.toolCalls} tool calls</span>
+                {usageOf(d)!.minutes !== null && <span>{usageOf(d)!.minutes} min</span>}
+              </p>
+            )}
+          </div>
+        </li>
+      ))}
+    </ul>
+
+    <section class="costs" aria-labelledby="h-costs">
+      <h2 id="h-costs">What each build used</h2>
+      <p class="note">Counted from each builder agent's own transcript and priced at the API list prices for <code translate="no">{model}</code>: {fmt.usd(p.input)} per million input tokens, {fmt.usd(p.cache_write_5m)} to write the cache, {fmt.usd(p.cache_read)} to read it and {fmt.usd(p.output)} per million output tokens. A Claude plan doesn't bill per token, so this is what the same work would cost through the API. It leaves out the work of setting the agents up and wiring the pages in.</p>
+      <div class="scroll">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Version</th>
+              <th scope="col">Cost</th>
+              <th scope="col">Written</th>
+              <th scope="col">Read fresh</th>
+              <th scope="col">Read from cache</th>
+              <th scope="col">Requests</th>
+              <th scope="col">Tool calls</th>
+              <th scope="col">Time (all five at once)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map(({ d, u }) => (
+              <tr>
+                <th scope="row"><a href={`/skills/${d.id}/`}>{d.name}</a></th>
+                {u ? (
+                  <>
+                    <td>{fmt.usd(u.costUsd)}</td>
+                    <td>{fmt.whole(u.tokens.output)}</td>
+                    <td>{fmt.whole(fresh(u))}</td>
+                    <td>{fmt.whole(u.tokens.cache_read)}</td>
+                    <td>{u.requests}</td>
+                    <td>{u.toolCalls}</td>
+                    <td>{u.minutes ?? '–'} min</td>
+                  </>
+                ) : <td colspan="7">Not recorded</td>}
+              </tr>
+            ))}
+          </tbody>
+          <tfoot>
+            <tr>
+              <th scope="row">All five</th>
+              <td>{fmt.usd(rows.reduce((s, r) => s + (r.u?.costUsd ?? 0), 0))}</td>
+              <td>{fmt.whole(rows.reduce((s, r) => s + (r.u?.tokens.output ?? 0), 0))}</td>
+              <td>{fmt.whole(rows.reduce((s, r) => s + (r.u ? fresh(r.u) : 0), 0))}</td>
+              <td>{fmt.whole(rows.reduce((s, r) => s + (r.u?.tokens.cache_read ?? 0), 0))}</td>
+              <td>{rows.reduce((s, r) => s + (r.u?.requests ?? 0), 0)}</td>
+              <td>{rows.reduce((s, r) => s + (r.u?.toolCalls ?? 0), 0)}</td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      <p class="note">Written is output, thinking included. Read fresh is input the model saw for the first time, mostly the skill's instructions and the files it opened. Read from cache is the same context re-read on every step, which is why it is large but cheap.</p>
+      <p class="note">No build was capped or hurried: each ran its skill's whole process and stopped when its own checks passed, so a skill with more steps costs more. Time is first step to last, with all five running at once on one machine and sharing one dev server and browser, and it includes waiting on screenshots and searches. Read cost, tokens and tool calls for the fair comparison, and time as a rough guide.</p>
+    </section>
+  </div>
+</Base>
+
+<style>
+  .back { display: inline-flex; align-items: center; gap: 0.375rem; margin-top: 1rem; color: var(--muted); font-size: var(--t-meta); transition: color 160ms ease; }
+  .back svg, .brief svg, .arrow { width: 0.875rem; height: 0.875rem; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; transition: transform 200ms var(--ease-out), stroke 160ms ease; }
+  .intro { padding-block: 1.25rem 3rem; max-width: 46rem; }
+  h1 { font-size: clamp(2.25rem, 1.4rem + 3vw, 3.75rem); line-height: 1; letter-spacing: -0.035em; }
+  h1 span { color: var(--muted); font-size: var(--t-title); font-weight: 400; letter-spacing: 0; margin-left: 0.25rem; font-variant-numeric: tabular-nums; }
+  .intro p { margin-top: 0.75rem; font-size: 1.0625rem; }
+  .brief { display: inline-flex; align-items: center; gap: 0.375rem; margin-top: 1rem; color: var(--accent); }
+
+  .plates { display: grid; gap: 4.5rem; padding-bottom: 6rem; }
+  .costs h2 { font-size: var(--t-title); }
+  /* Desktop and phone shots share one height: columns in the ratio of their widths at equal height. */
+  .shots { display: grid; grid-template-columns: 1.6fr 0.462fr; gap: 1rem; align-items: start; }
+  .shots img { width: 100%; height: auto; border-radius: 6px; background: var(--surface); }
+  .caption { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr) auto; gap: 0.5rem 2rem; align-items: baseline; margin-top: 1rem; }
+  h2 { font-size: var(--t-title); }
+  h2 a { display: inline-flex; align-items: center; gap: 0.5rem; }
+  .skill { color: var(--muted); font-size: 0.9375rem; grid-row: 2; }
+  .skill code { font-family: var(--mono); font-size: 0.875rem; }
+  .line { grid-column: 2; grid-row: 1 / span 2; max-width: 52ch; }
+  .open { grid-column: 3; grid-row: 1; color: var(--muted); font-size: 0.9375rem; text-decoration: underline; text-underline-offset: 0.25em; text-decoration-thickness: 1px; white-space: nowrap; transition: color 160ms ease; }
+  .stats { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 0.25rem 1.25rem; margin-top: 0.5rem; color: var(--muted); font-size: 0.9375rem; font-variant-numeric: tabular-nums; }
+  .stats span:first-child { color: var(--ink); }
+
+  .costs { padding-bottom: 6rem; }
+  .costs h2 { margin-bottom: 0.75rem; }
+  .note { max-width: 68ch; color: var(--muted); font-size: 0.9375rem; }
+  .note code { font-family: var(--mono); font-size: 0.875rem; }
+  .scroll { overflow-x: auto; margin-block: 1.5rem 1rem; }
+  /* A real table, so it keeps its rules. */
+  table { width: 100%; min-width: 48rem; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  th, td { padding: 0.75rem 1rem 0.75rem 0; text-align: right; white-space: nowrap; }
+  th:first-child { text-align: left; }
+  thead th { font-weight: 400; font-size: var(--t-meta); color: var(--muted); border-bottom: 1px solid var(--line); }
+  tbody tr { border-bottom: 1px solid var(--line); }
+  tbody th { font-weight: 500; }
+  tbody th a { text-decoration: underline; text-underline-offset: 0.25em; text-decoration-thickness: 1px; }
+  tfoot th, tfoot td { color: var(--muted); }
+
+  @media (hover: hover) and (pointer: fine) {
+    .back:hover, .open:hover { color: var(--ink); }
+    .back:hover svg { transform: translateX(-3px); }
+    .brief:hover svg, h2 a:hover .arrow { transform: translateX(3px); stroke: var(--accent); }
+  }
+
+  @media (max-width: 900px) {
+    .caption { grid-template-columns: minmax(0, 1fr); }
+    .skill, .line, .open { grid-column: 1; grid-row: auto; }
+  }
+  @media (max-width: 640px) {
+    .shots { grid-template-columns: minmax(0, 1fr) 30%; gap: 0.5rem; }
+    .plates { gap: 3.5rem; }
+  }
+</style>

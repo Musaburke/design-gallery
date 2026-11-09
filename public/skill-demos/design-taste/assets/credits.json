@@ -1,0 +1,72 @@
+[
+  {
+    "file": "public/skill-demos/design-taste/assets/uber-das-gedachtnis-untersuchungen-zur-experimentellen-psych.png",
+    "media": "image",
+    "ref": "commons:134849117",
+    "title": "Über das Gedächtnis. Untersuchungen zur experimentellen Psychologie, Fig 2",
+    "creator": "Hermann Ebbinghaus",
+    "creatorUrl": null,
+    "date": "1885-01-01",
+    "license": "public domain",
+    "licenseCode": "pd",
+    "licenseUrl": "https://creativecommons.org/publicdomain/mark/1.0/",
+    "creditRequired": false,
+    "page": "https://commons.wikimedia.org/wiki/File:%C3%9Cber_das_Ged%C3%A4chtnis._Untersuchungen_zur_experimentellen_Psychologie,_Fig_2.png",
+    "via": "Wikimedia Commons",
+    "image": "https://upload.wikimedia.org/wikipedia/commons/7/7e/%C3%9Cber_das_Ged%C3%A4chtnis._Untersuchungen_zur_experimentellen_Psychologie%2C_Fig_2.png",
+    "width": 1243,
+    "height": 853,
+    "bytes": 122238,
+    "credit": "\"Über das Gedächtnis. Untersuchungen zur experimentellen Psychologie, Fig 2\" by Hermann Ebbinghaus, public domain, via Wikimedia Commons",
+    "notes": [],
+    "saved": "2026-11-09T20:07:15.548Z"
+  },
+  {
+    "file": "public/skill-demos/design-taste/assets/schlagwortkatalog.jpg",
+    "media": "image",
+    "ref": "commons:483741",
+    "title": "Schlagwortkatalog",
+    "creator": "Dr. Marcus Gossler",
+    "creatorUrl": null,
+    "date": "2005-12-29",
+    "license": "CC BY-SA 3.0",
+    "licenseCode": "by-sa",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+    "creditRequired": true,
+    "page": "https://commons.wikimedia.org/wiki/File:Schlagwortkatalog.jpg",
+    "via": "Wikimedia Commons",
+    "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7e/Schlagwortkatalog.jpg/1920px-Schlagwortkatalog.jpg",
+    "width": 1920,
+    "height": 1624,
+    "bytes": 488336,
+    "credit": "\"Schlagwortkatalog\" by Dr. Marcus Gossler, CC BY-SA 3.0, via Wikimedia Commons",
+    "notes": [
+      "Share-alike: an altered version (recoloured, combined with other pictures) must be shared under the same licence."
+    ],
+    "saved": "2026-11-09T20:07:16.697Z"
+  },
+  {
+    "file": "public/skill-demos/design-taste/assets/card-catalog-at-the-indiana-state-library.jpg",
+    "media": "image",
+    "ref": "openverse:5c93fba5-0f7f-49fd-99e1-0a067bd30cf8",
+    "title": "Card catalog at the Indiana State Library - interior view of catalog cards",
+    "creator": "TBurmeister (WMF)",
+    "creatorUrl": "https://commons.wikimedia.org/wiki/User:TBurmeister_(WMF)",
+    "date": null,
+    "license": "CC BY-SA 4.0",
+    "licenseCode": "by-sa",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "creditRequired": true,
+    "page": "https://commons.wikimedia.org/w/index.php?curid=153582894",
+    "via": "Wikimedia Commons",
+    "image": "https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3a/Card_catalog_at_the_Indiana_State_Library_-_interior_view_of_catalog_cards.jpg/1920px-Card_catalog_at_the_Indiana_State_Library_-_interior_view_of_catalog_cards.jpg",
+    "width": 1920,
+    "height": 2560,
+    "bytes": 980054,
+    "credit": "\"Card catalog at the Indiana State Library - interior view of catalog cards\" by TBurmeister (WMF), CC BY-SA 4.0, via Wikimedia Commons",
+    "notes": [
+      "Share-alike: an altered version (recoloured, combined with other pictures) must be shared under the same licence."
+    ],
+    "saved": "2026-11-09T20:07:28.867Z"
+  }
+]
