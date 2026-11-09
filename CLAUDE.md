@@ -16,7 +16,7 @@ Stack: Astro 7, TypeScript, Tailwind 4, `three`. Run with `npm run dev`. Check w
 - `src/lib/demos.ts` loads the demos and the raw text of their files with `import.meta.glob`. The code panels show the same files the demos run, so they can't drift.
 - `groups` in `components.ts` sets the group order, headings, one-line descriptions and the `feature` demo for each group. The landing page, the group pages and the header all read it.
 - `/` is the landing page: a jump list and one tile per group, led by its `feature` demo. Those demos are `inert`, so they play but take no clicks; the tile is one link.
-- `/g/<slug>/` is a group's grid of live previews. The grid layout follows the count (1, 2, 3 or 5 across). `/c/<slug>/` is the full demo, the code and what changed.
+- `/g/<slug>/` is a group's grid of live previews. The grid layout follows the count (1, 2 or 3 across, a mixed grid for 5, rows of 3 for 6). `/c/<slug>/` is the full demo and its code.
 - Demos inside `[data-preview]` (grid cards and landing tiles) may play themselves. `src/lib/preview.ts` says when: on screen, tab visible, no pointer or focus inside. The drawer and the pyramid use it; scroll reveal has its own copy.
 - A component shows its preview and its code, nothing else. No source repos, site names, or notes on what changed, in the data, visible text or code comments (Musa, 9 Nov 2026).
 

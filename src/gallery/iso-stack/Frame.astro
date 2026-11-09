@@ -1,0 +1,46 @@
+---
+// A browser window at one fixed ratio, so screenshots never crop or sit at mixed sizes.
+// The view holds a drawn placeholder page here; on a real site put an <img> in .view
+// (object-fit: cover, object-position: top) sized to the capture's ratio.
+interface Props { host?: string; tone?: string }
+const { host = 'example.com', tone = '#3b6e5b' } = Astro.props;
+---
+<figure class="shot" style={`--tone: ${tone}`}>
+  <div class="bar" aria-hidden="true">
+    <span class="dots"><i></i><i></i><i></i></span>
+    <span class="host">{host}</span>
+  </div>
+  <div class="view" aria-hidden="true">
+    <div class="page">
+      <span class="nav"><i></i><i></i><i></i></span>
+      <span class="head"></span>
+      <span class="line"></span>
+      <span class="line short"></span>
+      <span class="cta"></span>
+      <span class="tile"></span>
+    </div>
+  </div>
+</figure>
+
+<style>
+  .shot {
+    margin: 0; border-radius: 10px; overflow: hidden; background: #141414;
+    box-shadow: 0 0 0 1px rgb(255 255 255 / 0.09), 0 30px 60px -30px rgb(0 0 0 / 0.8);
+  }
+  .bar { height: 22px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 0 10px; background: #222; }
+  .dots { display: flex; gap: 5px; }
+  .dots i { width: 7px; height: 7px; border-radius: 50%; background: #3a3a3a; }
+  .host { font-size: 10px; color: #8d8e89; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .view { aspect-ratio: 16 / 10; overflow: hidden; background: #f4f2ec; container-type: inline-size; }
+
+  /* The placeholder page: a nav, a headline, two lines, a button and a picture tile. */
+  .page { position: relative; height: 100%; padding: 5cqw 7cqw; }
+  .page span { display: block; border-radius: 1cqw; }
+  .nav { display: flex !important; justify-content: flex-end; gap: 2.5cqw; margin-bottom: 8cqw; }
+  .nav i { width: 7cqw; height: 1.4cqw; border-radius: 1cqw; background: #cfccc3; }
+  .head { width: 44%; height: 5cqw; background: #26261f; margin-bottom: 3cqw; }
+  .line { width: 40%; height: 1.6cqw; background: #b9b6ac; margin-bottom: 1.6cqw; }
+  .line.short { width: 28%; }
+  .cta { width: 15cqw; height: 4.4cqw; margin-top: 3.5cqw; border-radius: 99px !important; background: var(--tone); }
+  .tile { position: absolute; right: 7cqw; top: 14cqw; width: 36%; height: 52%; background: var(--tone); opacity: 0.85; }
+</style>
