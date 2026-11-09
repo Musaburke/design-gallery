@@ -1,0 +1,82 @@
+{
+ "apple-design-desktop-full": [
+  2160,
+  7376
+ ],
+ "apple-design-desktop": [
+  2160,
+  1350
+ ],
+ "apple-design-mobile-full": [
+  780,
+  10764
+ ],
+ "apple-design-mobile": [
+  780,
+  1688
+ ],
+ "baseline-desktop-full": [
+  2160,
+  7770
+ ],
+ "baseline-desktop": [
+  2160,
+  1350
+ ],
+ "baseline-mobile-full": [
+  780,
+  13184
+ ],
+ "baseline-mobile": [
+  780,
+  1688
+ ],
+ "design-taste-desktop-full": [
+  2160,
+  11846
+ ],
+ "design-taste-desktop": [
+  2160,
+  1350
+ ],
+ "design-taste-mobile-full": [
+  780,
+  16058
+ ],
+ "design-taste-mobile": [
+  780,
+  1688
+ ],
+ "emil-design-eng-desktop-full": [
+  2160,
+  6746
+ ],
+ "emil-design-eng-desktop": [
+  2160,
+  1350
+ ],
+ "emil-design-eng-mobile-full": [
+  780,
+  10790
+ ],
+ "emil-design-eng-mobile": [
+  780,
+  1688
+ ],
+ "impeccable-desktop-full": [
+  2160,
+  8838
+ ],
+ "impeccable-desktop": [
+  2160,
+  1350
+ ],
+ "impeccable-mobile-full": [
+  780,
+  12288
+ ],
+ "impeccable-mobile": [
+  780,
+  1688
+ ]
+}

@@ -1,8 +1,10 @@
 // The skill demos: one made-up landing page (Tallbook, brief in skill-demos/brief.md)
 // built once per design skill, each by a fresh agent allowed only that skill.
 // Each page lives as static files in public/skill-demos/<id>/.
-// Thumbnails (first screen, desktop and phone) are in public/skill-demos/thumbs/.
+// Captures are in public/skill-demos/thumbs/: first screens and whole pages, desktop and
+// phone, as WebP. Their pixel sizes are in skill-demos/shots.json.
 import usage from './skill-demos/usage.json';
+import shots from './skill-demos/shots.json';
 
 export interface SkillDemo {
   id: string;
@@ -120,4 +122,11 @@ export const fmt = {
 
 // index.html spelled out: the dev server does not map a public folder to its index.
 export const pageOf = (d: SkillDemo) => `/skill-demos/${d.id}/index.html`;
-export const thumbOf = (d: SkillDemo, view: 'desktop' | 'mobile') => `/skill-demos/thumbs/${d.id}-${view}.jpg`;
+export const thumbOf = (d: SkillDemo, view: 'desktop' | 'mobile') => `/skill-demos/thumbs/${d.id}-${view}.webp`;
+
+/** The whole page as one tall image (desktop at 1.5x, phone at 2x), with its pixel size. */
+export const fullShotOf = (d: SkillDemo, view: 'desktop' | 'mobile') => {
+  const key = `${d.id}-${view}-full`;
+  const [w = 0, h = 0] = (shots as Record<string, number[]>)[key] ?? [];
+  return { src: `/skill-demos/thumbs/${key}.webp`, w, h };
+};
