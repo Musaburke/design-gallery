@@ -1,7 +1,7 @@
 ---
-// A logo with links circling it, each kept upright as the ring turns.
-// Pauses on hover and focus so the links are easy to hit. One slow sheen
-// passes across the logo the first time it comes into view.
+// A logo with links circling it, each spinning on its own axis as the ring turns.
+// Pauses on hover and focus so the links are easy to hit; the link under the
+// pointer gives a short buzz.
 // Placeholder mark and links: swap in the real logo and profiles.
 interface Link { name: string; url: string; icon: string }
 interface Props { links?: Link[] }
@@ -29,12 +29,11 @@ const {
       <circle cx="50" cy="50" r="44" fill="none" stroke="#c9a227" stroke-width="2" />
       <text x="50" y="59" text-anchor="middle" fill="#c9a227" font-size="26" font-weight="500" letter-spacing="1">LOGO</text>
     </svg>
-    <div aria-hidden="true" class="sheen"><span></span></div>
   </div>
   <ul class="ring-track">
     {links.map((link) => (
       <li class="spot">
-        <div class="upright">
+        <div class="spin">
           <a href={link.url} aria-label={link.name} title={link.name} class="social-link">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d={link.icon} /></svg>
           </a>
@@ -59,15 +58,6 @@ const {
   }
   .logo svg { display: block; width: 100%; height: auto; }
 
-  /* One slow gold pass across the logo, the first time it comes into view. */
-  .sheen { position: absolute; inset: 0; overflow: hidden; border-radius: 50%; pointer-events: none; }
-  .sheen span {
-    position: absolute; inset: 0;
-    translate: -100% 0;
-    background: linear-gradient(100deg, transparent 35%, rgb(255 244 200 / 0.5) 50%, transparent 65%);
-  }
-  .stage.seen .sheen span { animation: logo-sheen 1.8s var(--orbit-ease) 0.4s; }
-
   .ring-track {
     position: absolute; inset: 0; margin: 0; padding: 0; list-style: none;
     animation: orbit 48s linear infinite;
@@ -83,27 +73,36 @@ const {
   .spot:nth-child(2) { --angle: 135deg; }
   .spot:nth-child(3) { --angle: 225deg; }
   .spot:nth-child(4) { --angle: 315deg; }
-  .upright { animation: orbit 48s linear infinite reverse; }
+  /* Each link turns on its own axis, faster than the ring. */
+  .spin { animation: orbit 9s linear infinite; }
   .stage:hover .ring-track,
-  .stage:hover .upright,
+  .stage:hover .spin,
   .stage:focus-within .ring-track,
-  .stage:focus-within .upright { animation-play-state: paused; }
+  .stage:focus-within .spin { animation-play-state: paused; }
 
   .social-link {
     display: grid; place-items: center; width: 2.75rem; height: 2.75rem; border-radius: 50%;
     background: #1a1a1a; color: #c9a227;
     transition: background-color 160ms ease, color 160ms ease, transform 160ms var(--orbit-ease);
   }
-  .social-link:hover { background: #c9a227; color: #0a0a0a; }
+  .social-link:focus-visible { animation: buzz 360ms ease-in-out; }
+  @media (hover: hover) and (pointer: fine) {
+    .social-link:hover { background: #c9a227; color: #0a0a0a; animation: buzz 360ms ease-in-out; }
+  }
   .social-link:active { transform: scale(0.94); }
   .social-link svg { width: 1.25rem; height: 1.25rem; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
 
   @keyframes orbit { to { rotate: 360deg; } }
-  @keyframes logo-sheen { to { translate: 100% 0; } }
+  /* Uses rotate and translate, so the transform scale on press still works. */
+  @keyframes buzz {
+    20% { rotate: -9deg; translate: -1.5px 0; }
+    40% { rotate: 8deg; translate: 1.5px 0; }
+    60% { rotate: -5deg; translate: -1px 0; }
+    80% { rotate: 3deg; translate: 0.5px 0; }
+  }
 
   @media (prefers-reduced-motion: reduce) {
-    .ring-track, .upright { animation: none; }
-    .stage.seen .sheen span { animation: none; }
+    .ring-track, .spin, .social-link:hover, .social-link:focus-visible { animation: none; }
   }
 </style>
 
@@ -111,11 +110,5 @@ const {
   document.querySelectorAll<HTMLElement>('[data-orbit]').forEach((stage) => {
     // Placeholder links go nowhere; stop them jumping the page to the top.
     stage.querySelectorAll<HTMLAnchorElement>('a[href="#"]').forEach((a) => a.addEventListener('click', (e) => e.preventDefault()));
-    const io = new IntersectionObserver(([e]) => {
-      if (!e?.isIntersecting) return;
-      stage.classList.add('seen');
-      io.disconnect();
-    }, { threshold: 0.4 });
-    io.observe(stage);
   });
 </script>
