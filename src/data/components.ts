@@ -72,21 +72,6 @@ export const components: GalleryComponent[] = [
     ],
   },
   {
-    slug: 'constellation',
-    name: 'Constellation',
-    group: 'Backgrounds',
-    blurb: 'The light version of the starfield: green nodes that drift, link when close and reach for the cursor.',
-    origin: { repo: 'ai-field-guide', path: 'src/components/Constellation.astro' },
-    entry: 'Constellation.astro',
-    files: ['gallery/constellation/Constellation.astro'],
-    uses: ['Canvas 2D'],
-    ground: '#fbf9f3',
-    changes: [
-      'Handles several canvases on one page.',
-      'Redraws on resize of its frame, not the window.',
-    ],
-  },
-  {
     slug: 'liquid-orb',
     name: 'Liquid orb',
     group: 'Motion',
