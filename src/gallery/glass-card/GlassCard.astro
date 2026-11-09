@@ -1,0 +1,99 @@
+---
+// A card on frosted glass: a dark tint, an 18px blur with a little extra
+// saturation, and a faint inner edge. The shapes behind it only exist to give
+// the blur something to bend; on a real page the glass sits over the page's
+// own background. Placeholder heading, line and actions.
+interface Props { title?: string; line?: string }
+const {
+  title = 'A card on glass',
+  line = 'Three lines of CSS: a see-through tint, a blur of what is behind, and a faint edge to hold the shape.',
+} = Astro.props;
+---
+<div class="glass-card" data-glass-card>
+  <div class="shapes" aria-hidden="true">
+    <span class="s1"></span><span class="s2"></span><span class="s3"></span>
+  </div>
+  <div class="card glass">
+    <h3>{title}</h3>
+    <p class="lead">{line}</p>
+    <p class="actions">
+      <a class="btn" href="#">Main action</a>
+      <a class="link" href="#">Second link</a>
+    </p>
+  </div>
+</div>
+
+<style>
+  .glass-card {
+    --gc-ink: #f1f1ef; --gc-accent: #8fa68e; --gc-accent-ink: #1c1c1c;
+    --gc-ease: cubic-bezier(0.23, 1, 0.32, 1);
+    --glass-bg: rgb(30 30 30 / 0.55); --glass-ring: rgb(255 255 255 / 0.09); --glass-blur: 18px;
+    position: absolute; inset: 0; overflow: hidden;
+    display: grid; place-items: center; padding: 1.5rem;
+    color: var(--gc-ink);
+    container-type: size;
+  }
+
+  /* Flat discs drifting on slow loops. Transform only. */
+  .shapes span { position: absolute; border-radius: 50%; will-change: transform; }
+  .s1 { width: 42cqmin; height: 42cqmin; left: 18%; top: 12%; background: var(--gc-accent); animation: drift-a 14s ease-in-out infinite alternate; }
+  .s2 { width: 30cqmin; height: 30cqmin; right: 16%; bottom: 10%; background: #c9a227; animation: drift-b 17s ease-in-out infinite alternate; }
+  .s3 { width: 22cqmin; height: 22cqmin; right: 30%; top: 8%; background: #3d5a80; animation: drift-c 11s ease-in-out infinite alternate; }
+  @keyframes drift-a { to { transform: translate(28cqw, 18cqh); } }
+  @keyframes drift-b { to { transform: translate(-30cqw, -22cqh); } }
+  @keyframes drift-c { to { transform: translate(-14cqw, 46cqh); } }
+  .paused .shapes span { animation-play-state: paused; }
+
+  .glass {
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+    backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+    box-shadow: inset 0 0 0 1px var(--glass-ring);
+  }
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .glass-card { --glass-bg: rgb(30 30 30 / 0.94); }
+  }
+
+  .card {
+    position: relative;
+    width: min(100%, 36rem); border-radius: 20px;
+    padding: clamp(1.5rem, 5cqw, 3rem);
+    text-align: center;
+  }
+  h3 { margin: 0; font-size: clamp(1.75rem, 6.5cqw, 3.5rem); font-weight: 500; line-height: 1; letter-spacing: -0.04em; }
+  .lead { margin: 1rem auto 0; max-width: 28rem; font-size: clamp(1rem, 2.4cqw, 1.25rem); line-height: 1.4; }
+  .actions { margin: 1.75rem 0 0; display: flex; justify-content: center; align-items: center; gap: 1.5rem; flex-wrap: wrap; }
+
+  .btn {
+    display: inline-flex; align-items: center; height: 2.75rem; padding-inline: 1.375rem; border-radius: 999px;
+    background: var(--gc-accent); color: var(--gc-accent-ink); font-weight: 500;
+    transition: transform 160ms var(--gc-ease), background-color 160ms ease;
+  }
+  .btn:active { transform: scale(0.97); }
+  .link { text-decoration: underline; text-underline-offset: 0.25em; text-decoration-thickness: 1px; transition: color 160ms ease; }
+  .btn:focus-visible, .link:focus-visible { outline: 2px solid var(--gc-accent); outline-offset: 3px; }
+  @media (hover: hover) and (pointer: fine) {
+    .btn:hover { background: #a3b8a2; }
+    .link:hover { color: var(--gc-accent); }
+  }
+
+  /* Short frames (a phone-width card) keep the heading and actions only. */
+  @container (max-height: 340px) {
+    .lead { display: none; }
+    .card { padding: 1.25rem 1.5rem; }
+    .actions { margin-top: 1rem; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .shapes span { animation: none; }
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-glass-card]').forEach((root) => {
+    // Placeholder links go nowhere; stop them jumping the page to the top.
+    root.querySelectorAll<HTMLAnchorElement>('a[href="#"]').forEach((a) => a.addEventListener('click', (e) => e.preventDefault()));
+    // Off screen, the shapes stop drifting.
+    new IntersectionObserver(([e]) => root.classList.toggle('paused', !e?.isIntersecting)).observe(root);
+  });
+</script>

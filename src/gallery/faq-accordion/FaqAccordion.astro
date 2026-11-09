@@ -1,0 +1,76 @@
+---
+// Questions that open in place, one at a time. Plain <details>: it opens with
+// no JavaScript, the shared name closes the others, and ::details-content
+// slides it where the browser supports it (it snaps open where it does not).
+// Placeholder questions: swap in the real ones.
+interface Faq { question: string; answer: string }
+interface Props { faqs?: Faq[] }
+const {
+  faqs = [
+    { question: 'Does it need JavaScript?', answer: 'No. Each question is a details element, so the browser opens and closes it on its own, even with scripts off.' },
+    { question: 'Can more than one be open?', answer: 'Not here. They share a name, so opening one closes the last. Drop the name to let several stay open.' },
+    { question: 'How does the slide work?', answer: 'The answer box animates its height from zero to auto. Browsers that cannot do that open it at once, which still works.' },
+    { question: 'What about reduced motion?', answer: 'The slide and the turning chevron are switched off. Questions still open and close.' },
+    { question: 'Where do the questions come from?', answer: 'A list passed in as a prop. On a real site it reads from a content collection, sorted by an order field.' },
+  ],
+} = Astro.props;
+// One name per instance, so two lists on one page do not close each other.
+const group = `faq-${Math.random().toString(36).slice(2, 8)}`;
+---
+<div class="faq">
+  <div class="list">
+    {faqs.map((faq, i) => (
+      <details name={group} open={i === 0}>
+        <summary>
+          {faq.question}
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4" /></svg>
+        </summary>
+        <p>{faq.answer}</p>
+      </details>
+    ))}
+  </div>
+</div>
+
+<style>
+  .faq {
+    --card: #161616; --border: #2e2a1e; --foreground: #f5f1e6; --muted-foreground: #a8a293; --primary: #c9a227;
+    --faq-ease: cubic-bezier(0.23, 1, 0.32, 1);
+    position: absolute; inset: 0; overflow-y: auto;
+    display: grid; align-content: center; padding: 1.5rem;
+    color: var(--foreground);
+    interpolate-size: allow-keywords;
+  }
+  .list { width: 100%; max-width: 42rem; margin-inline: auto; padding-inline: 1rem; border: 1px solid var(--border); border-radius: 0.75rem; background: var(--card); }
+  details:not(:last-child) { border-bottom: 1px solid var(--border); }
+
+  summary {
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+    min-height: 2.75rem; padding-block: 0.75rem;
+    font-size: 1rem; font-weight: 500; cursor: pointer; list-style: none;
+    border-radius: 0.5rem;
+  }
+  summary::-webkit-details-marker { display: none; }
+  summary:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+  summary svg {
+    width: 1rem; height: 1rem; flex-shrink: 0; color: var(--muted-foreground);
+    fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round;
+    transition: transform 250ms var(--faq-ease);
+  }
+  details[open] summary svg { transform: rotate(180deg); }
+  @media (hover: hover) and (pointer: fine) {
+    summary:hover { text-decoration: underline; text-underline-offset: 0.2em; }
+  }
+
+  details p { margin: 0; padding-bottom: 0.75rem; color: var(--muted-foreground); font-size: 1rem; line-height: 1.55; max-width: 60ch; }
+
+  /* The slide. Closing is a touch quicker than opening. */
+  details::details-content {
+    block-size: 0; overflow-y: clip;
+    transition: block-size 200ms var(--faq-ease), content-visibility 200ms allow-discrete;
+  }
+  details[open]::details-content { block-size: auto; transition-duration: 280ms; }
+
+  @media (prefers-reduced-motion: reduce) {
+    summary svg, details::details-content { transition: none; }
+  }
+</style>

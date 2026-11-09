@@ -1,7 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import CodeBlock from '../../components/CodeBlock.astro';
-import { components, type GalleryComponent } from '../../data/components';
+import { components, groupOf, type GalleryComponent } from '../../data/components';
 import { demoFor } from '../../lib/demos';
 
 export function getStaticPaths() {
@@ -18,10 +18,11 @@ export function getStaticPaths() {
 interface Props { item: GalleryComponent; prev: GalleryComponent; next: GalleryComponent }
 const { item, prev, next } = Astro.props;
 const Demo = demoFor(item);
+const group = groupOf(item);
 ---
-<Base title={`${item.name} · Design gallery`} description={item.blurb}>
+<Base title={`${item.name} · Design gallery`} description={item.blurb} group={group.slug}>
   <div class="wrap">
-    <a class="back" href={`/#${item.group === 'Backgrounds' ? 'backgrounds' : 'motion'}`}><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M13 8H3M7 4L3 8l4 4" /></svg>All components</a>
+    <a class="back" href={`/g/${group.slug}/`}><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M13 8H3M7 4L3 8l4 4" /></svg>{group.heading}</a>
 
     <div class="head">
       <h1>{item.name}</h1>
