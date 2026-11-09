@@ -2,6 +2,7 @@
 import Base from '../layouts/Base.astro';
 import { components, groups, inGroup, bySlug } from '../data/components';
 import { demoFor } from '../lib/demos';
+import { skillDemos, thumbOf } from '../data/skill-demos';
 
 // Each group gets a tile led by one live demo. The tiles are links; the demos
 // in them are pictures (inert), so they play themselves and take no clicks.
@@ -29,6 +30,13 @@ const tiles = groups.map((g, i) => {
               </a>
             </li>
           ))}
+          <li>
+            <a href="/skills/">
+              <span class="name">Skill demos</span>
+              <span class="n">{skillDemos.length}</span>
+              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" /></svg>
+            </a>
+          </li>
         </ul>
       </nav>
     </div>
@@ -52,6 +60,23 @@ const tiles = groups.map((g, i) => {
           </div>
         </article>
       ))}
+
+      <article class="tile t-skills" style={`--i: ${tiles.length}`} aria-labelledby="h-skills">
+        <div class="strip" aria-hidden="true">
+          {skillDemos.map((d) => <img src={thumbOf(d, 'desktop')} width="1440" height="900" loading="lazy" decoding="async" alt="" />)}
+        </div>
+        <div class="caption">
+          <h2 id="h-skills">
+            <a href="/skills/">
+              Skill demos
+              <span class="count">{skillDemos.length}</span>
+              <svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" /></svg>
+            </a>
+          </h2>
+          <p class="line">One made-up landing page, built once with each design skill and once with none.</p>
+          <p class="names">{skillDemos.map((d) => d.name).join(', ')}</p>
+        </div>
+      </article>
     </div>
   </div>
 </Base>
@@ -91,6 +116,10 @@ const tiles = groups.map((g, i) => {
   /* Tiles in a row share one frame height, so their captions line up. */
   .frame { height: clamp(18rem, 34vw, 31rem); transition: transform 300ms var(--ease-out); }
   .t-surfaces .frame { height: auto; aspect-ratio: 21 / 8; }
+  /* The five first screens side by side, like contact prints. */
+  .strip { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.75rem; transition: transform 300ms var(--ease-out); }
+  .strip img { width: 100%; height: auto; border-radius: 6px; background: var(--surface); }
+  .tile:active .strip { transform: scale(0.99); }
 
   .caption { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0.25rem 2rem; margin-top: 1rem; align-items: baseline; }
   h2 { font-size: var(--t-title); grid-column: 1 / -1; }
@@ -121,6 +150,8 @@ const tiles = groups.map((g, i) => {
     .frame, .t-surfaces .frame { height: auto; aspect-ratio: 16 / 10; }
   }
   @media (max-width: 640px) {
+    .strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .strip img:last-child { grid-column: span 2; }
     .frame, .t-surfaces .frame { aspect-ratio: 4 / 3.4; }
     .tiles { row-gap: 2.5rem; }
   }

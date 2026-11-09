@@ -1,0 +1,31 @@
+---
+import Base from '../../layouts/Base.astro';
+import { Content } from '../../data/skill-demos/brief.md';
+---
+<Base title="The brief · Skill demos" description="The one brief every skill demo was built from." group="skills">
+  <div class="wrap">
+    <a class="back" href="/skills/"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M13 8H3M7 4L3 8l4 4" /></svg>Skill demos</a>
+    <article class="brief">
+      <Content />
+    </article>
+  </div>
+</Base>
+
+<style>
+  .back { display: inline-flex; align-items: center; gap: 0.375rem; margin-top: 1rem; color: var(--muted); font-size: var(--t-meta); transition: color 160ms ease; }
+  .back svg { width: 0.875rem; height: 0.875rem; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; transition: transform 200ms var(--ease-out); }
+  @media (hover: hover) and (pointer: fine) { .back:hover { color: var(--ink); } .back:hover svg { transform: translateX(-3px); } }
+
+  .brief { max-width: 42rem; padding-block: 1.5rem 6rem; }
+  .brief :global(h1) { font-size: clamp(2.25rem, 1.4rem + 3vw, 3.75rem); line-height: 1; letter-spacing: -0.035em; margin-bottom: 1rem; }
+  .brief :global(h2) { font-size: var(--t-title); margin: 3rem 0 0.75rem; }
+  .brief :global(h3) { font-size: 1.125rem; margin: 2rem 0 0.5rem; }
+  .brief :global(p), .brief :global(li) { font-size: 1.0625rem; }
+  .brief :global(p + p) { margin-top: 0.75rem; }
+  .brief :global(ul), .brief :global(ol) { display: grid; gap: 0.375rem; padding-left: 1.25rem; margin-top: 0.5rem; }
+  .brief :global(ul) { list-style: disc; }
+  .brief :global(ol) { list-style: decimal; }
+  .brief :global(li::marker) { color: var(--muted); }
+  .brief :global(strong) { font-weight: 500; }
+  .brief :global(blockquote) { margin-top: 0.75rem; padding: 1rem 1.25rem; background: var(--surface); border-radius: 6px; }
+</style>

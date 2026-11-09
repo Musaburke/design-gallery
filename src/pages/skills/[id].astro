@@ -1,0 +1,160 @@
+---
+import Base from '../../layouts/Base.astro';
+import { skillDemos, pageOf, usageOf, prices, fmt, type SkillDemo } from '../../data/skill-demos';
+
+export function getStaticPaths() {
+  return skillDemos.map((d, i) => ({
+    params: { id: d.id },
+    props: {
+      d,
+      prev: skillDemos[(i - 1 + skillDemos.length) % skillDemos.length],
+      next: skillDemos[(i + 1) % skillDemos.length],
+    },
+  }));
+}
+
+interface Props { d: SkillDemo; prev: SkillDemo; next: SkillDemo }
+const { d, prev, next } = Astro.props;
+const u = usageOf(d);
+const p = u ? prices[u.model] : undefined;
+// One row per kind of token, with what it cost at API prices.
+const lines = u && p ? [
+  { label: 'Input', n: u.tokens.input, rate: p.input },
+  { label: 'Cache writes', n: u.tokens.cache_write_5m, rate: p.cache_write_5m },
+  ...(u.tokens.cache_write_1h ? [{ label: 'Cache writes (1 hour)', n: u.tokens.cache_write_1h, rate: p.cache_write_1h }] : []),
+  { label: 'Cache reads', n: u.tokens.cache_read, rate: p.cache_read },
+  { label: 'Output', n: u.tokens.output, rate: p.output },
+] : [];
+---
+<Base title={`${d.name} · Skill demos`} description={d.line} group="skills">
+  <div class="wrap">
+    <a class="back" href="/skills/"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M13 8H3M7 4L3 8l4 4" /></svg>Skill demos</a>
+
+    <div class="head">
+      <div>
+        <h1>{d.name}</h1>
+        <p>{d.line}</p>
+      </div>
+      <div class="tools">
+        <div class="views" role="group" aria-label="Preview width">
+          <button type="button" class="press" aria-pressed="true" data-view="desktop">Desktop</button>
+          <button type="button" class="press" aria-pressed="false" data-view="phone">Phone</button>
+        </div>
+        <a class="open" href={pageOf(d)}>Open on its own</a>
+      </div>
+    </div>
+
+    <div class="stage" data-stage>
+      <iframe src={pageOf(d)} title={`Tallbook page built with ${d.skill ?? 'no skill'}`} loading="lazy"></iframe>
+    </div>
+
+    <div class="cols">
+      <section aria-labelledby="h-notes">
+        <h2 id="h-notes">What the skill decided</h2>
+        {d.notes.length > 0
+          ? <ul>{d.notes.map((n) => <li>{n}</li>)}</ul>
+          : <p class="empty">No notes yet.</p>}
+      </section>
+      <aside aria-label="About this version">
+        <dl>
+          <div><dt>Skill</dt><dd>{d.skill ? <code translate="no">{d.skill}</code> : 'None'}</dd></div>
+          <div><dt>Built by</dt><dd>A fresh agent allowed this skill and nothing else</dd></div>
+          <div><dt>Brief</dt><dd><a href="/skills/brief/">The same for every version</a></dd></div>
+          {u && (
+            <div><dt>Build</dt><dd>{u.requests} requests, {u.toolCalls} tool calls{u.minutes !== null && `, ${u.minutes} min`}</dd></div>
+          )}
+        </dl>
+        {u && (
+          <table class="usage">
+            <caption>Tokens and API cost (<code translate="no">{u.model}</code>)</caption>
+            <thead><tr><th scope="col">Kind</th><th scope="col">Tokens</th><th scope="col">Cost</th></tr></thead>
+            <tbody>
+              {lines.map((l) => (
+                <tr><th scope="row">{l.label}</th><td>{fmt.whole(l.n)}</td><td>{fmt.usd((l.n * l.rate) / 1_000_000)}</td></tr>
+              ))}
+            </tbody>
+            <tfoot><tr><th scope="row">Total</th><td>{fmt.whole(u.totalTokens)}</td><td>{fmt.usd(u.costUsd)}</td></tr></tfoot>
+          </table>
+        )}
+      </aside>
+    </div>
+
+    <nav class="pager" aria-label="More versions">
+      <a href={`/skills/${prev.id}/`}><span>Previous</span>{prev.name}</a>
+      <a href={`/skills/${next.id}/`} class="next"><span>Next</span>{next.name}</a>
+    </nav>
+  </div>
+</Base>
+
+<script>
+  // Desktop fills the frame; Phone narrows it to 390px so the page's phone layout shows.
+  const stage = document.querySelector<HTMLElement>('[data-stage]');
+  const buttons = document.querySelectorAll<HTMLButtonElement>('[data-view]');
+  buttons.forEach((btn) => btn.addEventListener('click', () => {
+    buttons.forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
+    stage?.classList.toggle('phone', btn.dataset.view === 'phone');
+  }));
+</script>
+
+<style>
+  .back { display: inline-flex; align-items: center; gap: 0.375rem; margin-top: 1rem; color: var(--muted); font-size: var(--t-meta); transition: color 160ms ease; }
+  .back svg { width: 0.875rem; height: 0.875rem; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; transition: transform 200ms var(--ease-out); }
+  .head { display: flex; justify-content: space-between; align-items: end; gap: 1.5rem 2rem; flex-wrap: wrap; padding-block: 1.25rem 1.75rem; }
+  .head > div:first-child { max-width: 44rem; }
+  h1 { font-size: var(--t-page); }
+  .head p { margin-top: 0.5rem; color: var(--muted); }
+  .tools { display: flex; align-items: center; gap: 1.25rem; }
+  .views { display: inline-flex; padding: 0.25rem; border-radius: 999px; background: var(--surface); }
+  .views button {
+    height: 2rem; padding-inline: 0.875rem; border-radius: 999px; border: 0; cursor: pointer;
+    background: transparent; color: var(--muted); font: inherit; font-size: 0.875rem;
+  }
+  .views button[aria-pressed='true'] { background: var(--surface-2); color: var(--ink); }
+  .open { color: var(--muted); font-size: 0.9375rem; text-decoration: underline; text-underline-offset: 0.25em; text-decoration-thickness: 1px; transition: color 160ms ease; }
+
+  .stage { display: flex; justify-content: center; height: calc(100svh - 7rem); min-height: 32rem; border-radius: 6px; background: var(--surface); overflow: hidden; }
+  .stage iframe { width: 100%; height: 100%; border: 0; background: #fff; transition: width 300ms var(--ease-out); }
+  .stage.phone iframe { width: 390px; }
+
+  .cols { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 2.5rem; margin-top: 3rem; align-items: start; }
+  h2 { font-size: var(--t-title); margin-bottom: 1rem; }
+  ul { display: grid; gap: 0.5rem; padding-left: 1.1rem; list-style: disc; max-width: 62ch; }
+  li::marker { color: var(--muted); }
+  .empty { color: var(--muted); }
+  dl { display: grid; gap: 1.25rem; padding-top: 3rem; }
+  dt { font-size: var(--t-meta); color: var(--muted); margin-bottom: 0.25rem; }
+  dd code { font-family: var(--mono); font-size: 0.875rem; }
+  dd a { text-decoration: underline; text-underline-offset: 0.25em; text-decoration-thickness: 1px; }
+  /* A real table, so it keeps its rules. */
+  .usage { width: 100%; margin-top: 2rem; border-collapse: collapse; font-size: 0.9375rem; font-variant-numeric: tabular-nums; }
+  .usage caption { text-align: left; font-size: var(--t-meta); color: var(--muted); padding-bottom: 0.5rem; }
+  .usage caption code { font-family: var(--mono); }
+  .usage th, .usage td { padding: 0.5rem 0; text-align: right; }
+  .usage th:first-child { text-align: left; font-weight: 400; }
+  .usage thead th { font-size: var(--t-meta); color: var(--muted); font-weight: 400; border-bottom: 1px solid var(--line); }
+  .usage tbody tr { border-bottom: 1px solid var(--line); }
+  .usage tfoot th, .usage tfoot td { font-weight: 500; }
+  .pager { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; padding-block: 5rem 4rem; }
+  .pager a { display: grid; gap: 0.25rem; padding: 1.25rem; background: var(--surface); border-radius: 6px; font-size: 1.125rem; transition: background-color 160ms ease, transform 160ms var(--ease-out); }
+  .pager a:active { transform: scale(0.99); }
+  .pager a span { font-size: var(--t-meta); color: var(--muted); }
+  .pager .next { text-align: right; }
+  @media (hover: hover) and (pointer: fine) {
+    .back:hover, .open:hover { color: var(--ink); }
+    .back:hover svg { transform: translateX(-3px); }
+    .views button[aria-pressed='false']:hover { color: var(--ink); }
+    .pager a:hover { background: var(--surface-2); }
+  }
+  @media (max-width: 900px) {
+    .cols { grid-template-columns: minmax(0, 1fr); }
+    dl { padding-top: 0; }
+  }
+  @media (max-width: 640px) {
+    .views { display: none; }
+    .stage { height: 75svh; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .stage iframe { transition: none; }
+    .pager a:active { transform: none; }
+  }
+</style>
