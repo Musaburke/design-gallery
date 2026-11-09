@@ -7,12 +7,11 @@ const { item, class: cls } = Astro.props;
 const Demo = demoFor(item);
 ---
 <article class:list={['card', cls]}>
-  <div class="frame" style={`--ground: ${item.ground}`}>
+  <div class="frame" data-preview style={`--ground: ${item.ground}`}>
     <Demo />
   </div>
   <div class="caption">
     <h3><a href={`/c/${item.slug}`}>{item.name}<svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" /></svg></a></h3>
-    <p class="from" translate="no">{item.origin.repo}</p>
   </div>
   <p class="blurb">{item.blurb}</p>
 </article>
@@ -24,7 +23,6 @@ const Demo = demoFor(item);
   h3 { font-size: 1.125rem; }
   h3 a { display: inline-flex; gap: 0.375rem; align-items: center; }
   .arrow { width: 0.875rem; height: 0.875rem; fill: none; stroke: var(--muted); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; transition: transform 200ms var(--ease-out), stroke 160ms ease; }
-  .from { font-size: var(--t-meta); color: var(--muted); }
   .blurb { margin-top: 0.25rem; color: var(--muted); font-size: 0.9375rem; max-width: 52ch; }
   @media (hover: hover) and (pointer: fine) {
     h3 a:hover .arrow { transform: translateX(3px); stroke: var(--accent); }

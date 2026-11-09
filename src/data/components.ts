@@ -9,7 +9,7 @@ export interface GalleryComponent {
   name: string;
   group: Group;
   blurb: string;
-  /** Where the original lives, as repo + path under ~/Projects. */
+  /** Where the original lives, as repo + path under ~/Projects. Kept in the data, hidden on the pages for now. */
   origin: { repo: string; path: string };
   entry: string;
   files: string[];
@@ -18,6 +18,8 @@ export interface GalleryComponent {
   ground: string;
   /** What was changed to make it work inside a frame instead of a full page. */
   changes: string[];
+  /** Give the demo a taller frame on its detail page (for demos you scroll inside). */
+  tall?: boolean;
 }
 
 export const components: GalleryComponent[] = [
@@ -33,7 +35,7 @@ export const components: GalleryComponent[] = [
     ground: '#1c1c1c',
     changes: [
       'Sized to its parent instead of the window, so several can run on one page.',
-      'Dropped scroll drift, warp streaks and the contact-section boost, which were portfolio-only hooks.',
+      'Dropped scroll drift, warp streaks and the contact-section boost, which only made sense on the original page.',
       'Pauses when off screen.',
     ],
   },
@@ -115,7 +117,7 @@ export const components: GalleryComponent[] = [
     slug: 'logo-orbit',
     name: 'Logo orbit',
     group: 'Motion',
-    blurb: 'Links circling a logo, kept upright as they turn. Pauses on hover and focus so they are easy to hit. A sheen passes once.',
+    blurb: 'Links circling a logo, each spinning on its own axis. Pauses on hover and focus so they are easy to hit, and the link under the pointer buzzes.',
     origin: { repo: 'DBS-cleaning', path: 'src/components/common/LogoOrbit.astro' },
     entry: 'LogoOrbit.astro',
     files: ['gallery/logo-orbit/LogoOrbit.astro'],
@@ -123,7 +125,8 @@ export const components: GalleryComponent[] = [
     ground: '#0a0a0a',
     changes: [
       'Placeholder mark and links instead of the client logo and socials.',
-      'Sheen clipped to a circle instead of a logo-shaped mask image.',
+      'Links spin on their own axis instead of staying upright, with a short buzz on hover and focus.',
+      'Dropped the sheen across the logo.',
     ],
   },
   {
@@ -145,7 +148,7 @@ export const components: GalleryComponent[] = [
     slug: 'scroll-reveal',
     name: 'Scroll reveal',
     group: 'Motion',
-    blurb: 'Headings rise in word by word and blocks stagger in as they scroll into view. Visible without JavaScript.',
+    blurb: 'Headings rise in word by word and blocks stagger in as they scroll into view. Scroll inside the box to see each one. Visible without JavaScript.',
     origin: { repo: 'portfolio', path: 'src/scripts/motion.ts' },
     entry: 'ScrollReveal.astro',
     files: ['gallery/scroll-reveal/ScrollReveal.astro', 'gallery/scroll-reveal/reveal.ts'],
@@ -153,8 +156,11 @@ export const components: GalleryComponent[] = [
     ground: '#1c1c1c',
     changes: [
       'Watches its own scroll box instead of the page, so it works inside a frame.',
+      'Each effect gets its own box-tall part with a heading naming it, and a scroll hint shows until you scroll.',
+      'In the grid it scrolls itself on a loop; it stops while the pointer or focus is inside.',
       'Replay button resets it.',
     ],
+    tall: true,
   },
 ];
 
