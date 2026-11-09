@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import { groups, inGroup } from '../data/components';
+import { skillDemos } from '../data/skill-demos';
 
 interface Props { title: string; description?: string; group?: string }
 const { title, description = 'Every background, effect and building block from my sites, live, with the code.', group } = Astro.props;
@@ -33,6 +34,7 @@ const { title, description = 'Every background, effect and building block from m
         {groups.map((g) => (
           <a href={`/g/${g.slug}/`} aria-current={g.slug === group ? 'page' : undefined}>{g.heading} <span>{inGroup(g).length}</span></a>
         ))}
+        <a href="/skills/" aria-current={group === 'skills' ? 'page' : undefined}>Skill demos <span>{skillDemos.length}</span></a>
       </nav>
       <details class="menu">
         <summary class="press">Groups<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4" /></svg></summary>
@@ -40,6 +42,7 @@ const { title, description = 'Every background, effect and building block from m
           {groups.map((g) => (
             <a href={`/g/${g.slug}/`} aria-current={g.slug === group ? 'page' : undefined}>{g.heading} <span>{inGroup(g).length}</span></a>
           ))}
+          <a href="/skills/" aria-current={group === 'skills' ? 'page' : undefined}>Skill demos <span>{skillDemos.length}</span></a>
         </nav>
       </details>
     </header>
@@ -98,7 +101,7 @@ const { title, description = 'Every background, effect and building block from m
   .menu nav a[aria-current] { background: var(--surface); }
   @keyframes menu-in { from { opacity: 0; transform: scale(0.96) translateY(-4px); } }
 
-  @media (max-width: 1080px) {
+  @media (max-width: 1240px) {
     .groups { display: none; }
     .menu { display: block; }
   }

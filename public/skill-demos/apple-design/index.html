@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tallbook</title>
+<meta name="description" content="Tallbook turns what you write in lectures into revision cards, and links each idea to where it came up before.">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='9' y='3' width='14' height='26' rx='4' fill='%232a64d8'/%3E%3Cpath d='M13 10h6M13 15h6M13 20h3' stroke='white' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="styles.css">
+<script>document.documentElement.classList.add('js');</script>
+<script src="app.js" defer></script>
+</head>
+<body id="top">
+
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="nav" data-nav>
+  <div class="nav-inner">
+    <a class="brand" href="#top" aria-label="Tallbook, back to top">
+      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><rect x="9" y="3" width="14" height="26" rx="4"/><path d="M13 10h6M13 15h6M13 20h3"/></svg>
+      <span>Tallbook</span>
+    </a>
+    <nav class="nav-links" aria-label="Main">
+      <a href="#how">How it works</a>
+      <a href="#features">Features</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#questions">Questions</a>
+    </nav>
+    <a class="btn btn-primary btn-small nav-cta" href="#pricing">Start a notebook</a>
+    <button class="menu-btn" type="button" aria-haspopup="dialog" aria-controls="sheet" data-menu-open>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h16M4 16h16"/></svg>
+      <span class="visually-hidden">Menu</span>
+    </button>
+  </div>
+</header>
+
+<dialog class="sheet-dialog" id="sheet" aria-label="Menu" data-sheet>
+  <div class="sheet-scrim" data-sheet-scrim></div>
+  <div class="sheet" data-sheet-panel>
+    <div class="sheet-grabber" aria-hidden="true"></div>
+    <nav aria-label="Menu">
+      <ul class="sheet-list">
+        <li><a href="#how">How it works</a></li>
+        <li><a href="#features">Features</a></li>
+        <li><a href="#pricing">Pricing</a></li>
+        <li><a href="#questions">Questions</a></li>
+      </ul>
+    </nav>
+    <a class="btn btn-primary btn-block" href="#pricing">Start a notebook</a>
+    <button class="sheet-close" type="button" data-sheet-close>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg>
+      <span class="visually-hidden">Close menu</span>
+    </button>
+  </div>
+</dialog>
+
+<main id="main">
+
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="wrap hero-copy">
+      <h1 id="hero-title" class="t-hero">Lecture notes that revise themselves</h1>
+      <p class="t-lead hero-lead">Tallbook turns what you write in lectures into revision cards, and links each idea to where it came up before.</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="#pricing">Start a notebook</a>
+        <a class="btn-link" href="#how">See how it works <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a>
+      </div>
+      <p class="t-small hero-fine">Free for three notebooks. No card needed.</p>
+    </div>
+
+    <div class="wrap">
+      <figure class="window" data-hero-window>
+        <div class="window-bar">
+          <span class="window-bar-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="14" rx="3"/><path d="M9.5 5v14"/></svg></span>
+          <span class="window-bar-title">Week 6 · Algorithms</span>
+        </div>
+        <div class="window-body">
+          <aside class="window-side" aria-hidden="true">
+            <p class="side-group">Algorithms</p>
+            <ul>
+              <li>Week 4</li>
+              <li>Week 5</li>
+              <li class="is-current">Week 6</li>
+            </ul>
+            <p class="side-group">C++</p>
+            <ul>
+              <li>Week 8</li>
+              <li>Week 9</li>
+            </ul>
+          </aside>
+          <div class="window-note">
+            <p class="note-title">Week 6 · Algorithms</p>
+            <div class="note-head-row">
+              <p class="note-h">Recursion</p>
+              <div class="link-chip-wrap">
+                <button class="link-chip" type="button" aria-expanded="true" aria-controls="hero-pop" data-pop-trigger>
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.66 0l3-3a4 4 0 0 0-5.66-5.66l-1 1"/><path d="M14 10a4 4 0 0 0-5.66 0l-3 3a4 4 0 0 0 5.66 5.66l1-1"/></svg>
+                  Also in C++
+                </button>
+                <div class="popover" id="hero-pop" data-pop>
+                  <p class="popover-title">C++ · last term</p>
+                  <p class="popover-line">Week 9 · Recursive functions</p>
+                </div>
+              </div>
+            </div>
+            <p>A function that calls itself on a smaller version of the problem.</p>
+            <p>Needs a base case, or it never stops.</p>
+            <p class="note-h">Base case</p>
+            <p>The input small enough to answer directly.</p>
+          </div>
+        </div>
+        <figcaption class="visually-hidden">The Tallbook app showing a sample lecture note, with a link to where recursion came up in C++.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="section" id="how" aria-labelledby="how-title">
+    <div class="wrap">
+      <h2 id="how-title" class="t-h2 section-title">From lecture to revision without the copying out</h2>
+      <ol class="steps">
+        <li class="step">
+          <span class="step-num" aria-hidden="true">1</span>
+          <h3 class="t-h3">Write as you listen.</h3>
+          <p>Plain text, headings and quick lists. No templates to fill in.</p>
+        </li>
+        <li class="step">
+          <span class="step-num" aria-hidden="true">2</span>
+          <h3 class="t-h3">Tallbook spots the ideas.</h3>
+          <p>Each heading and each definition becomes a card with the question on the front.</p>
+        </li>
+        <li class="step">
+          <span class="step-num" aria-hidden="true">3</span>
+          <h3 class="t-h3">Revise for ten minutes a day.</h3>
+          <p>Cards come back the day before you'd forget them, not all at once in exam week.</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="section demo" aria-labelledby="demo-title">
+    <div class="wrap">
+      <h2 id="demo-title" class="t-h2 section-title">What it does with one page of notes</h2>
+
+      <div class="demo-grid">
+        <div class="demo-note" data-note>
+          <p class="note-title">Week 6 · Algorithms</p>
+          <p class="note-h" data-src="0">Recursion</p>
+          <p data-src="0">A function that calls itself on a smaller version of the problem.</p>
+          <p data-src="1">Needs a base case, or it never stops.</p>
+          <p class="note-h" data-src="2">Base case</p>
+          <p data-src="2">The input small enough to answer directly.</p>
+        </div>
+
+        <div class="demo-cards">
+          <div class="deck" data-deck>
+            <div class="card" data-card="0">
+              <div class="card-inner">
+                <div class="card-face card-front"><p>What is recursion?</p></div>
+                <div class="card-face card-back"><p>A function that calls itself on a smaller version of the problem.</p></div>
+              </div>
+            </div>
+            <div class="card" data-card="1">
+              <div class="card-inner">
+                <div class="card-face card-front"><p>What happens without a base case?</p></div>
+                <div class="card-face card-back"><p>It never stops.</p></div>
+              </div>
+            </div>
+            <div class="card" data-card="2">
+              <div class="card-inner">
+                <div class="card-face card-front"><p>What is a base case?</p></div>
+                <div class="card-face card-back"><p>The input small enough to answer directly.</p></div>
+              </div>
+            </div>
+          </div>
+          <div class="deck-controls" data-deck-controls>
+            <button class="round-btn" type="button" data-flip>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 0 1 13.66-5.66L20 8.5"/><path d="M20 4v4.5h-4.5"/><path d="M20 12a8 8 0 0 1-13.66 5.66L4 15.5"/><path d="M4 20v-4.5h4.5"/></svg>
+              <span class="visually-hidden">Flip card</span>
+            </button>
+            <p class="deck-count" aria-live="polite" data-count>1 / 3</p>
+            <button class="round-btn" type="button" data-next>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+              <span class="visually-hidden">Next card</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <p class="demo-caption">Three cards from five lines. You wrote nothing extra.</p>
+    </div>
+  </section>
+
+  <section class="section" id="features" aria-labelledby="features-title">
+    <div class="wrap">
+      <h2 id="features-title" class="t-h2 section-title">Built for the way modules overlap</h2>
+      <ul class="features">
+        <li class="feature">
+          <svg class="feature-icon" viewBox="0 0 28 28" aria-hidden="true"><circle cx="7" cy="8" r="3.5"/><circle cx="21" cy="20" r="3.5"/><path d="M10.5 8h4a3 3 0 0 1 3 3v5.5"/></svg>
+          <h3 class="t-h3">Links across modules.</h3>
+          <p>Write "recursion" in Algorithms and Tallbook shows where you met it in C++ last term.</p>
+        </li>
+        <li class="feature">
+          <svg class="feature-icon" viewBox="0 0 28 28" aria-hidden="true"><rect x="5" y="6" width="18" height="12" rx="2.5"/><path d="M3 22h22"/><path d="M11 12l2 2 4-4"/></svg>
+          <h3 class="t-h3">Works offline.</h3>
+          <p>Notes save on your laptop first and sync when the Wi-Fi comes back.</p>
+        </li>
+        <li class="feature">
+          <svg class="feature-icon" viewBox="0 0 28 28" aria-hidden="true"><rect x="4" y="4" width="8" height="6" rx="2"/><rect x="16" y="11" width="8" height="6" rx="2"/><rect x="4" y="18" width="8" height="6" rx="2"/><path d="M8 10v8M12 7h4a4 4 0 0 1 4 4"/></svg>
+          <h3 class="t-h3">Diagrams from text.</h3>
+          <p>Type a list of steps and get a flowchart you can drag into place.</p>
+        </li>
+        <li class="feature">
+          <svg class="feature-icon" viewBox="0 0 28 28" aria-hidden="true"><rect x="4" y="6" width="20" height="18" rx="3"/><path d="M4 11h20M9 3.5v4M19 3.5v4"/><circle cx="18" cy="17.5" r="2" class="fill"/></svg>
+          <h3 class="t-h3">Exam mode.</h3>
+          <p>Pick a date and Tallbook only shows the cards you need before it.</p>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="section" id="pricing" aria-labelledby="pricing-title">
+    <div class="wrap">
+      <h2 id="pricing-title" class="t-h2 section-title">Free to start, cheap to keep</h2>
+      <div class="plans">
+        <article class="plan" aria-labelledby="plan-free">
+          <h3 id="plan-free" class="plan-name">Free</h3>
+          <p class="plan-price">£0</p>
+          <p class="plan-desc">Three notebooks, revision cards, works offline.</p>
+          <a class="btn btn-tinted btn-block" href="#pricing">Start a notebook</a>
+        </article>
+        <article class="plan plan-featured" aria-labelledby="plan-student">
+          <h3 id="plan-student" class="plan-name">Student</h3>
+          <p class="plan-price">£3 <span>a month</span></p>
+          <p class="plan-desc">Unlimited notebooks, diagrams, exam mode, sync across your devices.</p>
+          <a class="btn btn-primary btn-block" href="#pricing">Try Student free for 14 days</a>
+        </article>
+      </div>
+      <p class="plans-note">Cancel any time from settings. Your notes stay yours and export as plain text.</p>
+    </div>
+  </section>
+
+  <section class="section" id="questions" aria-labelledby="questions-title">
+    <div class="wrap wrap-narrow">
+      <h2 id="questions-title" class="t-h2 section-title">Questions</h2>
+      <div class="faq">
+        <details>
+          <summary>Do I have to change how I take notes?<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary>
+          <p>No. Write the way you already do. Headings and "X is Y" sentences make the best cards.</p>
+        </details>
+        <details>
+          <summary>Can I bring my old notes?<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary>
+          <p>Yes. Paste them in or import Markdown and Word files, and Tallbook makes cards from those too.</p>
+        </details>
+        <details>
+          <summary>What happens to my notes if I stop paying?<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary>
+          <p>You keep all of them. You go back to three active notebooks, and the rest become read-only.</p>
+        </details>
+        <details>
+          <summary>Does it work for maths?<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary>
+          <p>Yes, with LaTeX in notes and on cards.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <section class="section last" aria-labelledby="last-title">
+    <div class="wrap">
+      <h2 id="last-title" class="t-h2">Your next lecture is the first page</h2>
+      <a class="btn btn-primary btn-large" href="#pricing">Start a notebook</a>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer" id="footer">
+  <div class="wrap footer-inner">
+    <p class="footer-brand">Tallbook</p>
+    <nav aria-label="Footer">
+      <ul class="footer-links">
+        <li><a href="#footer">Privacy</a></li>
+        <li><a href="#footer">Terms</a></li>
+        <li><a href="#footer">Contact</a></li>
+      </ul>
+    </nav>
+    <p class="footer-line">Tallbook is a made-up product, built to compare design approaches.</p>
+  </div>
+</footer>
+
+</body>
+</html>

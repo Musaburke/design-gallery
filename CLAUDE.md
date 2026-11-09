@@ -26,8 +26,13 @@ Stack: Astro 7, TypeScript, Tailwind 4, `three`. Run with `npm run dev`. Check w
 - The chrome stays quiet and dark: one ground, one ink, the sage accent on the mark and focus only. The components are the loud part.
 - Skills: `design-taste-frontend` (app-screen rules) and `emil-design-eng` for UI. Run `impeccable` and `web-design-guidelines` after a section. Skills live in `.claude/skills`, copied from `DBS-cleaning`.
 
-## Later
-- Skill demos: rebuild one landing page with each design skill and compare. Planned as a second section.
+## Skill demos
+- One made-up product, Tallbook, built once per design skill and once with none. The brief and the full copy are in `src/data/skill-demos/brief.md`, and every version uses them word for word.
+- Each version was built by a fresh agent allowed only its one skill (the baseline got none) and lives as static files in `public/skill-demos/<id>/`. Link to `.../index.html`: the dev server doesn't map a public folder to its index.
+- `src/data/skill-demos.ts` lists the versions with notes from each builder's report. `/skills/` compares them, `/skills/<id>/` shows one live with a desktop/phone toggle, and `/skills/brief/` renders the brief.
+- Thumbnails in `public/skill-demos/thumbs/` are first screens at 1440×900 and 390×844, taken 3 seconds after load so entrance animations have settled.
+- Token use and cost: `python3 tools/agent-usage.py src/data/skill-demos/usage.json <id>=<agent transcript .jsonl> ...` sums each builder's transcript and prices it at API list prices (the `PRICES` table in the script). Run it only once every agent has finished, because a transcript is still growing until then.
+- To add a skill: copy the builder prompt pattern (one skill, the brief, write only in its folder), add an entry to `skill-demos.ts`, rerun the usage script with every transcript, and retake thumbnails.
 
 ## Notes
 - The FAQ accordion was a React island on its source site. Here it is rebuilt with `details`/`summary`, since the gallery has no React.
