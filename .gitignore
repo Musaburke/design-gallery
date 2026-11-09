@@ -5,3 +5,10 @@ dist/
 .taste-skill/
 .playwright-cli/
 .tmp/
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+.env*
+!.env.example
