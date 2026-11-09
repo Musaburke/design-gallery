@@ -1,0 +1,85 @@
+---
+import Base from '../../layouts/Base.astro';
+import Card from '../../components/Card.astro';
+import { groups, inGroup, type GroupInfo } from '../../data/components';
+
+export function getStaticPaths() {
+  return groups.map((g, i) => ({
+    params: { slug: g.slug },
+    props: {
+      g,
+      prev: groups[(i - 1 + groups.length) % groups.length],
+      next: groups[(i + 1) % groups.length],
+    },
+  }));
+}
+
+interface Props { g: GroupInfo; prev: GroupInfo; next: GroupInfo }
+const { g, prev, next } = Astro.props;
+const items = inGroup(g);
+// The grid follows the count, so no row ends ragged.
+const layout = ({ 1: 'one', 2: 'two', 3: 'three', 5: 'mixed' } as Record<number, string>)[items.length] ?? 'two';
+---
+<Base title={`${g.heading} · Design gallery`} description={g.line} group={g.slug}>
+  <div class="wrap">
+    <a class="back" href="/"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M13 8H3M7 4L3 8l4 4" /></svg>All groups</a>
+
+    <div class="intro">
+      <h1>{g.heading} <span>{items.length}</span></h1>
+      <p>{g.line} Open one for its code.</p>
+    </div>
+
+    <div class:list={['grid', layout]}>
+      {items.map((item) => <Card item={item} />)}
+    </div>
+
+    <nav class="pager" aria-label="More groups">
+      <a href={`/g/${prev.slug}/`}><span>Previous</span>{prev.heading}</a>
+      <a href={`/g/${next.slug}/`} class="next"><span>Next</span>{next.heading}</a>
+    </nav>
+  </div>
+</Base>
+
+<style>
+  .back { display: inline-flex; align-items: center; gap: 0.375rem; margin-top: 1rem; color: var(--muted); font-size: var(--t-meta); transition: color 160ms ease; }
+  .back svg { width: 0.875rem; height: 0.875rem; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; transition: transform 200ms var(--ease-out); }
+  .intro { padding-block: 1.25rem 2.5rem; max-width: 44rem; }
+  h1 { font-size: clamp(2.25rem, 1.4rem + 3vw, 3.75rem); line-height: 1; letter-spacing: -0.035em; }
+  h1 span { color: var(--muted); font-size: var(--t-title); font-weight: 400; letter-spacing: 0; font-variant-numeric: tabular-nums; margin-left: 0.25rem; }
+  .intro p { margin-top: 0.75rem; font-size: 1.0625rem; }
+
+  .grid { display: grid; gap: 2.5rem 1.25rem; }
+  .one { grid-template-columns: minmax(0, 1fr); }
+  .one :global(.frame) { aspect-ratio: 21 / 9; }
+  .two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  /* Five cards: three across, then two wider ones. */
+  .mixed { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .mixed > :global(*) { grid-column: span 2; }
+  .mixed > :global(*:nth-child(n + 4)) { grid-column: span 3; }
+
+  .pager { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; padding-block: 5rem 4rem; }
+  .pager a { display: grid; gap: 0.25rem; padding: 1.25rem; background: var(--surface); border-radius: 6px; font-size: 1.125rem; transition: background-color 160ms ease, transform 160ms var(--ease-out); }
+  .pager a:active { transform: scale(0.99); }
+  .pager a span { font-size: var(--t-meta); color: var(--muted); }
+  .pager .next { text-align: right; }
+  @media (hover: hover) and (pointer: fine) {
+    .back:hover { color: var(--ink); }
+    .back:hover svg { transform: translateX(-3px); }
+    .pager a:hover { background: var(--surface-2); }
+  }
+
+  @media (max-width: 900px) {
+    .three, .mixed { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .three > :global(*), .mixed > :global(*), .mixed > :global(*:nth-child(n + 4)) { grid-column: span 1; }
+    .three > :global(*:last-child), .mixed > :global(*:last-child) { grid-column: span 2; }
+    .one :global(.frame) { aspect-ratio: 16 / 10; }
+  }
+  @media (max-width: 640px) {
+    .two, .three, .mixed { grid-template-columns: minmax(0, 1fr); }
+    .three > :global(*:last-child), .mixed > :global(*), .mixed > :global(*:last-child) { grid-column: span 1; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .pager a:active { transform: none; }
+  }
+</style>

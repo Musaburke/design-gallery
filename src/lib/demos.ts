@@ -5,7 +5,7 @@ import type { GalleryComponent } from '../data/components';
 type Demo = (props: Record<string, unknown>) => unknown;
 
 const demos = import.meta.glob<{ default: Demo }>('/src/gallery/*/*.astro', { eager: true });
-const sources = import.meta.glob<string>(['/src/gallery/**/*.{astro,ts,css}', '/src/lib/stage.ts'], {
+const sources = import.meta.glob<string>(['/src/gallery/**/*.{astro,ts,css}', '/src/lib/stage.ts', '/src/lib/preview.ts'], {
   query: '?raw',
   import: 'default',
   eager: true,
