@@ -11,7 +11,7 @@ const Demo = demoFor(item);
     <Demo />
   </div>
   <div class="caption">
-    <h3><a href={`/c/${item.slug}`}>{item.name}<svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" /></svg></a></h3>
+    <h2><a href={`/c/${item.slug}`}>{item.name}<svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" /></svg></a></h2>
   </div>
   <p class="blurb">{item.blurb}</p>
 </article>
@@ -20,11 +20,12 @@ const Demo = demoFor(item);
   .card { display: flex; flex-direction: column; min-width: 0; }
   .frame { aspect-ratio: 16 / 10; }
   .caption { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; margin-top: 0.875rem; }
-  h3 { font-size: 1.125rem; }
-  h3 a { display: inline-flex; gap: 0.375rem; align-items: center; }
+  h2 { font-size: 1.125rem; }
+  /* Padding grows the hit area to 44px; the negative margin keeps the layout where it was. */
+  h2 a { display: inline-flex; gap: 0.375rem; align-items: center; padding-block: 0.625rem; margin-block: -0.625rem; }
   .arrow { width: 0.875rem; height: 0.875rem; fill: none; stroke: var(--muted); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; transition: transform 200ms var(--ease-out), stroke 160ms ease; }
   .blurb { margin-top: 0.25rem; color: var(--muted); font-size: 0.9375rem; max-width: 52ch; }
   @media (hover: hover) and (pointer: fine) {
-    h3 a:hover .arrow { transform: translateX(3px); stroke: var(--accent); }
+    h2 a:hover .arrow { transform: translateX(3px); stroke: var(--accent); }
   }
 </style>
