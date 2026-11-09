@@ -94,6 +94,26 @@ const lines = u && p ? [
     buttons.forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
     stage?.classList.toggle('phone', btn.dataset.view === 'phone');
   }));
+
+  // A link or focus inside the demo scrolls the demo, but the browser also scrolls this page
+  // to bring the frame into view, which drops you down the gallery. While the demo is being
+  // used, hold this page where it was. Wheel, touch and keys on this page still scroll it.
+  const frame = document.querySelector<HTMLIFrameElement>('[data-stage] iframe');
+  let pinY = scrollY;
+  let guardUntil = 0;
+  const guard = (ms: number) => { guardUntil = Math.max(guardUntil, performance.now() + ms); };
+  addEventListener('scroll', () => {
+    if (performance.now() < guardUntil) { if (scrollY !== pinY) scrollTo({ top: pinY, behavior: 'instant' }); }
+    else pinY = scrollY;
+  }, { passive: true });
+  const watch = (doc: Document | null | undefined) => {
+    if (!doc) return;
+    for (const type of ['pointerdown', 'keydown']) doc.addEventListener(type, () => { pinY = scrollY; guard(1500); }, true);
+    // Smooth scrolling inside the demo keeps firing; keep holding until it settles.
+    doc.defaultView?.addEventListener('scroll', () => { if (performance.now() < guardUntil) guard(400); }, { passive: true });
+  };
+  frame?.addEventListener('load', () => watch(frame.contentDocument));
+  if (frame?.contentDocument?.readyState === 'complete') watch(frame.contentDocument);
 </script>
 
 <style>

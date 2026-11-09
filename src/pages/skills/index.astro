@@ -18,30 +18,60 @@ const fresh = (u: NonNullable<ReturnType<typeof usageOf>>) => u.tokens.input + u
       <a class="brief" href="/skills/brief/">Read the brief<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" /></svg></a>
     </div>
 
-    <ul class="plates">
+    {/* Hidden until the script runs: without it every version shows, stacked. */}
+    <div class="picker" role="tablist" aria-label="Versions" data-picker hidden>
       {skillDemos.map((d, i) => (
-        <li class="plate">
-          <div class="shots">
-            <Peek {...fullShotOf(d, 'desktop')} ratio="1440 / 900" hint={i === 0} label={`${d.name}, whole page at desktop width`} alt={`The whole Tallbook page built with ${d.skill ?? 'no skill'}, at desktop width.`} />
-            <Peek {...fullShotOf(d, 'mobile')} ratio="390 / 844" label={`${d.name}, whole page at phone width`} alt={`The same page at phone width.`} />
-          </div>
-          <div class="caption">
-            <h2><a href={`/skills/${d.id}/`}>{d.name}<svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" /></svg></a></h2>
-            <p class="skill">{d.skill ? <code translate="no">{d.skill}</code> : 'No skill loaded'}</p>
-            <p class="line">{d.line}</p>
-            <a class="open" href={pageOf(d)}>Open the page on its own</a>
-            {usageOf(d) && (
-              <p class="stats">
-                <span>{fmt.usd(usageOf(d)!.costUsd)} at API prices</span>
-                <span>{fmt.compact(usageOf(d)!.tokens.output)} tokens written</span>
-                <span>{usageOf(d)!.toolCalls} tool calls</span>
-                {usageOf(d)!.minutes !== null && <span>{usageOf(d)!.minutes} min</span>}
-              </p>
-            )}
-          </div>
-        </li>
+        <button type="button" role="tab" id={`t-${d.id}`} aria-controls={`v-${d.id}`} aria-selected={i === 0 ? 'true' : 'false'} tabindex={i === 0 ? 0 : -1} data-tab={d.id}>{d.name}</button>
       ))}
-    </ul>
+    </div>
+
+    <div class="plates">
+      {skillDemos.map((d, i) => (
+        <div class="plate" id={`v-${d.id}`} role="tabpanel" aria-labelledby={`t-${d.id}`} data-plate={d.id}>
+          {/* The words come first, so they're read before the big preview takes over. */}
+          <div class="top">
+            <div class="about">
+              <h2><a href={`/skills/${d.id}/`}>{d.name}<svg class="arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" /></svg></a></h2>
+              <p class="skill">{d.skill ? <code translate="no">{d.skill}</code> : 'No skill loaded'}</p>
+              <p class="line">{d.line}</p>
+              {usageOf(d) && (
+                <p class="stats">
+                  <span>{fmt.usd(usageOf(d)!.costUsd)} at API prices</span>
+                  <span>{fmt.compact(usageOf(d)!.tokens.output)} tokens written</span>
+                  <span>{usageOf(d)!.toolCalls} tool calls</span>
+                  {usageOf(d)!.minutes !== null && <span>{usageOf(d)!.minutes} min</span>}
+                </p>
+              )}
+            </div>
+            <div class="tools">
+              {/* Hidden until the script runs: without it only the desktop shot shows. */}
+              <div class="views" role="group" aria-label={`${d.name} preview width`} data-views hidden>
+                <span class="thumb" aria-hidden="true"></span>
+                <button type="button" aria-pressed="true" data-view="desktop">Desktop</button>
+                <button type="button" aria-pressed="false" data-view="phone">Phone</button>
+              </div>
+              <a class="open" href={pageOf(d)} target="_blank" rel="noopener">Open the full page<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11l6-6M6 5h5v5" /></svg><span class="visually-hidden"> (opens in a new tab)</span></a>
+            </div>
+          </div>
+          <div class="shots" data-shots data-view="desktop">
+            <div class="pane" data-pane="desktop">
+              <Peek {...fullShotOf(d, 'desktop')} ratio="1440 / 900" label={`${d.name}, whole page at desktop width`} alt={`The whole Tallbook page built with ${d.skill ?? 'no skill'}, at desktop width.`} />
+            </div>
+            <div class="pane" data-pane="phone" hidden>
+              <Peek {...fullShotOf(d, 'mobile')} ratio="390 / 844" phone label={`${d.name}, whole page at phone width`} alt={`The same page at phone width.`} />
+            </div>
+          </div>
+          {/* Steps to the neighbours, wrapping round. Hidden until the script runs. */}
+          <div class="steps" data-steps hidden>
+            {[skillDemos[(i - 1 + skillDemos.length) % skillDemos.length]!, skillDemos[(i + 1) % skillDemos.length]!].map((n, k) => (
+              <button type="button" class:list={[{ next: k === 1 }]} data-go={n.id}>
+                <span>{k === 0 ? 'Previous skill' : 'Next skill'}</span>{n.name}
+              </button>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
 
     <section class="costs" aria-labelledby="h-costs">
       <h2 id="h-costs">What each build used</h2>
@@ -62,7 +92,7 @@ const fresh = (u: NonNullable<ReturnType<typeof usageOf>>) => u.tokens.input + u
           </thead>
           <tbody>
             {rows.map(({ d, u }) => (
-              <tr>
+              <tr data-row={d.id}>
                 <th scope="row"><a href={`/skills/${d.id}/`}>{d.name}</a></th>
                 {u ? (
                   <>
@@ -107,22 +137,90 @@ const fresh = (u: NonNullable<ReturnType<typeof usageOf>>) => u.tokens.input + u
   .brief { display: inline-flex; align-items: center; gap: 0.375rem; margin-top: 1rem; color: var(--accent); }
 
   .plates { display: grid; gap: 4.5rem; padding-bottom: 6rem; }
+  /* With the picker on, one plate shows at a time. */
+  .plates.picked { gap: 0; }
+  .plate[hidden] { display: none; }
+  .plates.picked .plate { animation: pane-in 280ms var(--ease-out); }
+
+  .picker { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 2.5rem; }
+  .picker[hidden] { display: none; }
+  .picker { scroll-margin-top: 5.5rem; }
+  .picker button {
+    height: 2.75rem; padding-inline: 1.25rem; border-radius: 999px; border: 0; cursor: pointer;
+    background: rgb(255 255 255 / 0.1); color: var(--ink); font: inherit; font-size: 1rem;
+    transition: background-color 160ms ease, color 160ms ease, transform 160ms var(--ease-out);
+  }
+  /* The picked version is the one solid chip, so it reads as where you are. */
+  .picker button[aria-selected='true'] { background: var(--ink); color: var(--bg); font-weight: 500; }
+
+  .steps { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 2rem; }
+  .steps[hidden] { display: none; }
+  .steps button {
+    display: grid; gap: 0.25rem; padding: 1.25rem; border: 0; border-radius: 6px; cursor: pointer; text-align: left;
+    background: var(--surface); color: var(--ink); font: inherit; font-size: 1.125rem;
+    transition: background-color 160ms ease, transform 160ms var(--ease-out);
+  }
+  .steps button span { font-size: var(--t-meta); color: var(--muted); }
+  .steps .next { text-align: right; }
+  .steps button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .steps button:active { transform: scale(0.99); }
+
+  /* The table row for the version on show. */
+  tbody tr.here { background: var(--surface); }
+  tbody tr.here th { box-shadow: inset 3px 0 0 var(--ink); padding-left: 0.875rem; }
+  tbody tr.here td:last-child { padding-right: 0.75rem; }
+  .picker button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .picker button:active { transform: scale(0.97); }
   .costs h2 { font-size: var(--t-title); }
-  /* Desktop and phone shots share one height: columns in the ratio of their widths at equal height. */
-  .shots { display: grid; grid-template-columns: 1.6fr 0.462fr; gap: 1rem; align-items: start; }
-  .caption { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr) auto; gap: 0.5rem 2rem; align-items: baseline; margin-top: 1rem; }
-  h2 { font-size: var(--t-title); }
+  .top { display: flex; justify-content: space-between; align-items: end; gap: 1.25rem 2.5rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+  .about { max-width: 46rem; }
+  h2 { font-size: clamp(1.75rem, 1.2rem + 1.6vw, 2.5rem); line-height: 1.1; letter-spacing: -0.02em; }
   h2 a { display: inline-flex; align-items: center; gap: 0.5rem; }
-  .skill { color: var(--muted); font-size: 0.9375rem; grid-row: 2; }
-  .skill code { font-family: var(--mono); font-size: 0.875rem; }
-  .line { grid-column: 2; grid-row: 1 / span 2; max-width: 52ch; }
-  .open { grid-column: 3; grid-row: 1; padding-block: 0.625rem; margin-block: -0.625rem; color: var(--muted); font-size: 0.9375rem; text-decoration: underline; text-underline-offset: 0.25em; text-decoration-thickness: 1px; white-space: nowrap; transition: color 160ms ease; }
-  .stats { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 0.25rem 1.25rem; margin-top: 0.5rem; color: var(--muted); font-size: 0.9375rem; font-variant-numeric: tabular-nums; }
-  .stats span:first-child { color: var(--ink); }
+  .skill { margin-top: 0.375rem; color: var(--muted); font-size: 1rem; }
+  .skill code { font-family: var(--mono); font-size: 0.9375rem; }
+  .line { margin-top: 1rem; font-size: 1.1875rem; line-height: 1.5; max-width: 60ch; }
+  .stats { display: flex; flex-wrap: wrap; gap: 0.25rem 1.5rem; margin-top: 0.75rem; font-size: 1rem; font-variant-numeric: tabular-nums; }
+  .stats span:first-child { font-weight: 500; }
+  .tools { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; }
+  /* The one solid button on the plate: opening the real page is the main thing to do here. */
+  .open {
+    display: inline-flex; align-items: center; gap: 0.5rem; height: 2.5rem; padding-inline: 1.125rem; border-radius: 999px;
+    background: var(--ink); color: var(--bg); font-weight: 500; font-size: 0.9375rem; white-space: nowrap;
+    transition: background-color 160ms ease, transform 160ms var(--ease-out);
+  }
+  .open svg { width: 0.875rem; height: 0.875rem; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; transition: transform 200ms var(--ease-out); }
+  .open:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  .open:active { transform: scale(0.97); }
+
+  /* Two equal halves; the thumb slides under the pressed one. */
+  .views { position: relative; display: inline-grid; grid-template-columns: 1fr 1fr; padding: 0.25rem; border-radius: 999px; background: var(--surface); }
+  .views[hidden] { display: none; }
+  .views .thumb {
+    position: absolute; top: 0.25rem; bottom: 0.25rem; left: 0.25rem; width: calc(50% - 0.25rem);
+    border-radius: 999px; background: var(--surface-2); transition: transform 260ms var(--ease-out);
+  }
+  .views.phone .thumb { transform: translateX(100%); }
+  .views button {
+    position: relative; height: 2rem; padding-inline: 0.875rem; border-radius: 999px; border: 0; cursor: pointer;
+    background: transparent; color: var(--muted); font: inherit; font-size: 0.875rem; transition: color 160ms ease;
+  }
+  .views button[aria-pressed='true'] { color: var(--ink); }
+  .views button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  /* One stage the size of a desktop shot. The phone shot stands in the middle at full height. */
+  .shots { position: relative; aspect-ratio: 1440 / 900; border-radius: 6px; background: var(--surface); }
+  .pane { position: absolute; inset: 0; animation: pane-in 280ms var(--ease-out); }
+  .pane[hidden] { display: none; }
+  .pane :global(.peek) { width: 100%; height: 100%; }
+  .pane[data-pane='phone'] { display: flex; justify-content: center; padding-block: 1rem; }
+  .pane[data-pane='phone'][hidden] { display: none; }
+  .pane[data-pane='phone'] :global(.peek) { width: auto; }
+  @keyframes pane-in { from { opacity: 0; } }
+
 
   .costs { padding-bottom: 6rem; }
   .costs h2 { margin-bottom: 0.75rem; }
-  .note { max-width: 68ch; color: var(--muted); font-size: 0.9375rem; }
+  .note { max-width: 68ch; font-size: 1rem; }
   .note code { font-family: var(--mono); font-size: 0.875rem; }
   .scroll { overflow-x: auto; margin-block: 1.5rem 1rem; }
   /* A real table, so it keeps its rules. */
@@ -136,16 +234,87 @@ const fresh = (u: NonNullable<ReturnType<typeof usageOf>>) => u.tokens.input + u
   tfoot th, tfoot td { color: var(--muted); }
 
   @media (hover: hover) and (pointer: fine) {
-    .open:hover { color: var(--ink); }
+    .open:hover { background: #fff; }
+    .open:hover svg { transform: translate(2px, -2px); }
+    .views button[aria-pressed='false']:hover { color: var(--ink); }
+    .picker button[aria-selected='false']:hover { background: rgb(255 255 255 / 0.17); }
+    .steps button:hover { background: var(--surface-2); }
     .brief:hover svg, h2 a:hover .arrow { transform: translateX(3px); stroke: var(--accent); }
   }
 
-  @media (max-width: 900px) {
-    .caption { grid-template-columns: minmax(0, 1fr); }
-    .skill, .line, .open { grid-column: 1; grid-row: auto; }
+  @media (prefers-reduced-motion: reduce) {
+    .views .thumb { transition: none; }
+    .pane, .plates.picked .plate { animation: none; }
+    .picker button:active, .steps button:active, .open:active { transform: none; }
   }
   @media (max-width: 640px) {
-    .shots { grid-template-columns: minmax(0, 1fr) 30%; gap: 0.5rem; }
+    /* A desktop-shaped stage leaves the phone shot tiny on a phone, so it grows tall for it. */
+    .shots[data-view='phone'] { aspect-ratio: auto; height: 70svh; }
     .plates { gap: 3.5rem; }
   }
 </style>
+
+<script>
+  const plates = [...document.querySelectorAll<HTMLElement>('[data-plate]')];
+  const picker = document.querySelector<HTMLElement>('[data-picker]');
+  const tabs = [...document.querySelectorAll<HTMLButtonElement>('[data-tab]')];
+  const rows = [...document.querySelectorAll<HTMLElement>('[data-row]')];
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // The switch shows one shot at a time, and one choice applies to every version,
+  // so picking another version keeps Phone if Phone was on. Hidden shots stop playing.
+  const setView = (view: string) => plates.forEach((plate) => {
+    plate.querySelector('[data-views]')?.classList.toggle('phone', view === 'phone');
+    plate.querySelectorAll('[data-view]').forEach((b) => b.setAttribute('aria-pressed', String((b as HTMLElement).dataset.view === view)));
+    const shots = plate.querySelector<HTMLElement>('[data-shots]');
+    if (!shots) return;
+    shots.dataset.view = view;
+    shots.querySelectorAll<HTMLElement>('[data-pane]').forEach((p) => { p.hidden = p.dataset.pane !== view; });
+  });
+  plates.forEach((plate) => {
+    const views = plate.querySelector<HTMLElement>('[data-views]');
+    if (!views) return;
+    views.hidden = false;
+    views.querySelectorAll<HTMLButtonElement>('[data-view]').forEach((btn) => btn.addEventListener('click', () => setView(btn.dataset.view!)));
+  });
+
+  // The picker shows one version at a time. The hash names it (#design-taste), so a link
+  // can open on one; replaceState changes it without the browser jumping to the plate.
+  const pick = (id: string, focus = false) => {
+    tabs.forEach((t) => {
+      const on = t.dataset.tab === id;
+      t.setAttribute('aria-selected', String(on));
+      t.tabIndex = on ? 0 : -1;
+      if (on && focus) t.focus();
+    });
+    plates.forEach((p) => { p.hidden = p.dataset.plate !== id; });
+    rows.forEach((r) => r.classList.toggle('here', r.dataset.row === id));
+    history.replaceState(null, '', `#${id}`);
+  };
+  if (picker && tabs.length) {
+    picker.hidden = false;
+    picker.nextElementSibling?.classList.add('picked');
+    const fromHash = location.hash.slice(1);
+    const first = tabs.some((t) => t.dataset.tab === fromHash) ? fromHash : tabs[0]!.dataset.tab!;
+    tabs.forEach((t) => { t.setAttribute('aria-selected', String(t.dataset.tab === first)); t.tabIndex = t.dataset.tab === first ? 0 : -1; });
+    plates.forEach((p) => { p.hidden = p.dataset.plate !== first; });
+    rows.forEach((r) => r.classList.toggle('here', r.dataset.row === first));
+    // Previous/Next under each plate: swap version, and if the chips are scrolled away, bring them back.
+    document.querySelectorAll<HTMLElement>('[data-steps]').forEach((steps) => {
+      steps.hidden = false;
+      steps.querySelectorAll<HTMLButtonElement>('[data-go]').forEach((b) => b.addEventListener('click', () => {
+        pick(b.dataset.go!);
+        if (picker.getBoundingClientRect().top < 0) picker.scrollIntoView({ block: 'start', behavior: reduce ? 'auto' : 'smooth' });
+      }));
+    });
+    tabs.forEach((t, i) => {
+      t.addEventListener('click', () => pick(t.dataset.tab!));
+      t.addEventListener('keydown', (e) => {
+        const to = { ArrowRight: i + 1, ArrowLeft: i - 1, Home: 0, End: tabs.length - 1 }[e.key];
+        if (to === undefined) return;
+        e.preventDefault();
+        pick(tabs[(to + tabs.length) % tabs.length]!.dataset.tab!, true);
+      });
+    });
+  }
+</script>
