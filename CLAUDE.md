@@ -1,6 +1,6 @@
 # Design gallery
 
-Musa's component gallery: every background and effect from his sites, running live, with its code. Private repo, live free at https://musa-design-gallery.pages.dev (Cloudflare Pages, no custom domain).
+Musa's component gallery: every background and effect from his sites, running live, with its code. Public repo (since 10 Nov 2026), live free at https://musa-design-gallery.pages.dev (Cloudflare Pages, no custom domain).
 
 Stack: Astro 7, TypeScript, Tailwind 4, `three`. Run with `npm run dev`. Check with `npm run check`.
 
@@ -8,7 +8,7 @@ Stack: Astro 7, TypeScript, Tailwind 4, `three`. Run with `npm run dev`. Check w
 - Cloudflare Pages project `musa-design-gallery`, configured in `wrangler.jsonc` (`pages_build_output_dir`): plain files from `dist/`, no server code. Don't add `@astrojs/cloudflare`; wrangler's project setup once added it on its own, and it was undone.
 - Cloudflare Pages project `musa-design-gallery` is connected to GitHub: merging into `main` builds and deploys automatically (Astro preset, `npm run build`, output `dist`, `NODE_VERSION` 24). Other branches get a preview address. There is no manual deploy script; don't add one, because a Direct Upload would create a separate project.
 - `public/_headers` sets the security headers and an enforced CSP. Same-origin framing is allowed because `/skills/<id>/` shows each demo in an iframe. A new external script, font or image host needs adding to the CSP, or it is blocked on the live site (the dev server ignores `_headers`).
-- The site is public even though the repo is private: placeholders only, no personal data, no source repos.
+- The site and the repo are both public: placeholders only, no personal data, no source repos.
 
 ## How it works
 - `src/data/components.ts` is the one list. Each entry points at `src/gallery/<slug>/`.
