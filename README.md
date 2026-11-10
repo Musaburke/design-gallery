@@ -4,9 +4,11 @@ The components from my sites in one place, each running live with its code.
 
 **Live:** https://musa-design-gallery.pages.dev
 
+![Design gallery home page: "Everything my sites are made of", with the five groups listed and live previews of the starfield and the liquid orb](docs/screenshot.jpg)
+
 ## What's in it
 
-- **Components,** in five groups: backgrounds, motion and effects, navigation, page sections and surfaces. Each one has a live preview and a page with the full demo and every file it needs.
+- **18 components** in five groups: backgrounds, motion and effects, navigation, page sections and surfaces. Each one has a live preview and a page with the full demo and every file it needs.
 - **Skill demos:** one made-up product, Tallbook, built once per design skill and once with none, so the skills can be compared side by side on desktop and phone. Each version lists what it cost in tokens.
 
 Every demo uses placeholder content. No client logos, contact details or personal data.
