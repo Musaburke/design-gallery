@@ -1,0 +1,133 @@
+---
+// Spot the fake: a question with a few look-alike messages, and one of them is a scam.
+// Tap the one you think is fake. It lights up with its giveaway in one line, the other cards
+// are marked genuine, and "Try another" moves to the next question. The sample brand and the
+// links are invented (.example addresses are reserved and never resolve).
+// Everything the visitor sees is built with textContent, never innerHTML.
+const questions = [
+  {
+    ask: 'One of these texts is not from Harbourline Bank. Which one?',
+    cards: [
+      { from: 'Harbourline', text: 'We stopped a payment of £120.00. If this was not you, call the number on the back of your card.' },
+      { from: 'Harbourline', text: 'Your account is locked. Confirm your details now at harbourline-secure.example/login', fake: true },
+      { from: 'Harbourline', text: 'Your March statement is ready to view in the app.' },
+    ],
+    why: 'A link you did not ask for, with a rush to log in. A real bank sends you to its app or to the number on your card.',
+    kind: 'Look-alike link',
+  },
+  {
+    ask: 'One of these emails is not from Parcelwise. Which one?',
+    cards: [
+      { from: 'Parcelwise', text: 'Your parcel is out for delivery today between 10:00 and 14:00.' },
+      { from: 'Parcelwise', text: 'Your parcel is held. Pay a £2.99 fee within 12 hours at parcelwise-fees.example or it is returned.', fake: true },
+      { from: 'Parcelwise', text: 'You left a parcel with a neighbour. Their house number is on the card through your door.' },
+    ],
+    why: 'A small fee and a short deadline. Delivery firms do not ask for card details by message.',
+    kind: 'Fake fee',
+  },
+  {
+    ask: 'One of these voicemails did not come from your phone company. Which one?',
+    cards: [
+      { from: 'Voicemail · 0:14', text: '"Hello, this is Tallwater Mobile. Your bill is ready; you can see it in the app."' },
+      { from: 'Voicemail · 0:21', text: '"This is Tallwater security. Your SIM will be disabled. Press 1 now to speak to an agent."', fake: true },
+      { from: 'Voicemail · 0:09', text: '"Hi, it is Tallwater. We tried to reach you about your upgrade. Call back when you can."' },
+    ],
+    why: 'Fear and a button to press. A real company will not threaten to cut you off and ask you to press a key.',
+    kind: 'Pressure call',
+  },
+];
+---
+<div class="check" data-check>
+  {questions.map((q) => (
+    <section class="q" data-q>
+      <h3>{q.ask}</h3>
+      <ul class="cards">
+        {q.cards.map((c) => (
+          <li><button type="button" class="card" data-fake={c.fake ? 'true' : 'false'}>
+            <span class="from">{c.from}</span>
+            <span class="text">{c.text}</span>
+          </button></li>
+        ))}
+      </ul>
+      <p class="result" data-result data-why={q.why} data-kind={q.kind} aria-live="polite"></p>
+      <p class="actions"><button type="button" class="next" data-next hidden>Try another</button></p>
+    </section>
+  ))}
+  <p class="count" data-count></p>
+</div>
+
+<style>
+  .check {
+    --c-ink: #f1f1ef; --c-muted: #b4b5af; --c-card: #2c2e2c; --c-accent: #cef79e; --c-accent-ink: #1c1c1c;
+    position: absolute; inset: 0; display: grid; align-content: center; justify-items: center; gap: 0.6rem;
+    padding: 1rem; color: var(--c-ink); font-family: system-ui, sans-serif;
+    overflow: auto;
+  }
+  .q { width: min(100%, 34rem); display: grid; gap: 0.65rem; }
+  .q[hidden] { display: none; }
+  h3 { margin: 0; font-size: 1.15rem; font-weight: 500; line-height: 1.25; letter-spacing: -0.01em; }
+  .cards { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.5rem; }
+  .card {
+    width: 100%; display: grid; gap: 0.15rem; text-align: left; padding: 0.65rem 0.9rem; border: 0; border-radius: 12px;
+    background: var(--c-card); color: inherit; font: inherit; cursor: pointer;
+    transition: transform 140ms cubic-bezier(0.23, 1, 0.32, 1), background-color 160ms ease, outline-color 160ms ease;
+    outline: 2px solid transparent; outline-offset: 0;
+  }
+  .card:hover:not(:disabled) { background: #363936; }
+  .card:active:not(:disabled) { transform: scale(0.985); }
+  .card:focus-visible { outline-color: #f1f1ef; }
+  .card:disabled { cursor: default; }
+  .from { color: var(--c-muted); font-size: 0.9rem; }
+  .text { font-size: 0.95rem; line-height: 1.35; }
+  .card.fake { outline-color: var(--c-accent); background: #343b2c; }
+  .card.real { opacity: 0.6; }
+  .result { margin: 0; font-size: 1rem; line-height: 1.4; }
+  .actions { margin: 0; }
+  .next {
+    min-height: 44px; padding: 0 1.2rem; border: 0; border-radius: 999px; cursor: pointer;
+    background: var(--c-accent); color: var(--c-accent-ink); font: inherit; font-size: 0.95rem;
+    transition: transform 140ms cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  .next:active { transform: scale(0.97); }
+  .next:focus-visible { outline: 2px solid #f1f1ef; outline-offset: 2px; }
+  .next[hidden] { display: none; }
+  .count { margin: 0; color: var(--c-muted); font-size: 0.9rem; }
+  @media (prefers-reduced-motion: reduce) { .card, .next { transition: none; } }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-check]').forEach((root) => {
+    const qs = [...root.querySelectorAll<HTMLElement>('[data-q]')];
+    const count = root.querySelector<HTMLElement>('[data-count]')!;
+
+    const show = (i: number) => {
+      qs.forEach((q, n) => (q.hidden = n !== i));
+      count.textContent = `${i + 1} of ${qs.length}`;
+    };
+    show(0);
+
+    qs.forEach((q, n) => {
+      const cards = [...q.querySelectorAll<HTMLButtonElement>('.card')];
+      const result = q.querySelector<HTMLElement>('[data-result]')!;
+      const next = q.querySelector<HTMLButtonElement>('[data-next]')!;
+      cards.forEach((card) => card.addEventListener('click', () => {
+        const hit = card.dataset.fake === 'true';
+        cards.forEach((c) => {
+          c.disabled = true;
+          c.classList.add(c.dataset.fake === 'true' ? 'fake' : 'real');
+        });
+        result.textContent = `${hit ? 'Found it.' : 'That one is genuine.'} ${result.dataset.kind}: ${result.dataset.why}`;
+        next.hidden = false;
+        next.focus({ preventScroll: true });
+      }));
+      next.addEventListener('click', () => {
+        // Reset this question, then move on, so coming round again starts fresh.
+        cards.forEach((c) => { c.disabled = false; c.classList.remove('fake', 'real'); });
+        result.textContent = '';
+        next.hidden = true;
+        show((n + 1) % qs.length);
+        qs[(n + 1) % qs.length].querySelector<HTMLButtonElement>('.card')?.focus({ preventScroll: true });
+      });
+    });
+  });
+</script>
