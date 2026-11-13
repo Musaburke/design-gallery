@@ -19,8 +19,8 @@ export const groups: GroupInfo[] = [
   { group: 'Backgrounds', slug: 'backgrounds', heading: 'Backgrounds', line: 'Living fields that sit behind everything else on a page, or hold the middle of it.', feature: 'starfield' },
   { group: 'Motion', slug: 'motion', heading: 'Motion and effects', line: 'Effects that play once, run on a loop or follow the cursor.', feature: 'liquid-orb' },
   { group: 'Navigation', slug: 'navigation', heading: 'Navigation', line: 'Ways around a site, from the first menu to the last link.', feature: 'drawer-nav' },
-  { group: 'Sections', slug: 'sections', heading: 'Page sections', line: 'Reviews that slide past, answers that open in place and project sections on colour.', feature: 'reviews-marquee' },
-  { group: 'Surfaces', slug: 'surfaces', heading: 'Surfaces', line: 'Materials for panels and cards: frosted glass and a window for screenshots.', feature: 'glass-card' },
+  { group: 'Sections', slug: 'sections', heading: 'Page sections', line: 'Reviews that slide past, answers that open in place, project sections on colour, a spot-the-fake quiz and a support chat.', feature: 'reviews-marquee' },
+  { group: 'Surfaces', slug: 'surfaces', heading: 'Surfaces', line: 'Materials for panels and cards: frosted glass, a liquid glass lens and a window for screenshots.', feature: 'glass-card' },
 ];
 
 export interface GalleryComponent {
@@ -83,6 +83,15 @@ export const components: GalleryComponent[] = [
     ground: '#17211c',
   },
   {
+    slug: 'living-water',
+    name: 'Living water',
+    group: 'Backgrounds',
+    blurb: 'An underwater field that follows depth: sunlit blue fading to black, shafts of light, out-of-focus forms edged with glow, bobbing lights and specks that light up near the pointer. Click for bubbles.',
+    entry: 'LivingWater.astro',
+    files: ['gallery/living-water/LivingWater.astro'],
+    ground: '#0d5274',
+  },
+  {
     slug: 'liquid-orb',
     name: 'Liquid orb',
     group: 'Motion',
@@ -139,6 +148,15 @@ export const components: GalleryComponent[] = [
     tall: true,
   },
   {
+    slug: 'ambient-sound',
+    name: 'Ambient sound',
+    group: 'Motion',
+    blurb: 'Soft noise made live in the browser, with no audio files. A depth slider closes a filter so deeper sounds darker and quieter. Off until switched on; nothing autoplays.',
+    entry: 'AmbientSound.astro',
+    files: ['gallery/ambient-sound/AmbientSound.astro'],
+    ground: '#1c1c1c',
+  },
+  {
     slug: 'drawer-nav',
     name: 'Drawer navbar',
     group: 'Navigation',
@@ -186,6 +204,24 @@ export const components: GalleryComponent[] = [
     tall: true,
   },
   {
+    slug: 'fake-check',
+    name: 'Spot the fake',
+    group: 'Sections',
+    blurb: 'A question with look-alike messages, one of them a scam. Tap the one you think is fake: it lights up with its giveaway, the others are marked genuine, and Try another moves on.',
+    entry: 'FakeCheck.astro',
+    files: ['gallery/fake-check/FakeCheck.astro'],
+    ground: '#1c1c1c',
+  },
+  {
+    slug: 'support-chat',
+    name: 'Support chat',
+    group: 'Sections',
+    blurb: 'A coloured header, agent and visitor bubbles, a typing line and a message box. Type and press Enter for a canned reply. Everything is added with textContent, so text it did not write can never become markup.',
+    entry: 'SupportChat.astro',
+    files: ['gallery/support-chat/SupportChat.astro'],
+    ground: '#1c1c1c',
+  },
+  {
     slug: 'glass-card',
     name: 'Glass card',
     group: 'Surfaces',
@@ -193,6 +229,15 @@ export const components: GalleryComponent[] = [
     entry: 'GlassCard.astro',
     files: ['gallery/glass-card/GlassCard.astro'],
     ground: '#1c1c1c',
+  },
+  {
+    slug: 'glass-lens',
+    name: 'Glass lens',
+    group: 'Surfaces',
+    blurb: 'A liquid glass lens drawn in one fragment shader. The picture refracts through a wobbling edge with a glossy rim; it dents and leans towards the cursor, ripples when tapped and cross-fades to the next picture.',
+    entry: 'GlassLens.astro',
+    files: ['gallery/glass-lens/GlassLens.astro', 'gallery/glass-lens/glass.ts', 'lib/preview.ts'],
+    ground: '#14201f',
   },
   {
     slug: 'browser-frame',
