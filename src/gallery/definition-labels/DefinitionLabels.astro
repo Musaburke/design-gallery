@@ -1,0 +1,77 @@
+---
+// Labels on a drawing, joined to their parts by leader lines. Each line has a dark halo under it and each label a
+// soft text halo, so both read on light and dark parts. A dotted underline says a label can be pressed: it opens
+// a short definition beside it (the Popover API: Esc, a click outside or scrolling closes it).
+// Placeholder drawing and words: swap in your own.
+const uid = Math.random().toString(36).slice(2, 8);
+const labels = [
+  { x: 50, y: 33, lx: 72, ly: 20, side: 1, text: 'The stem', term: 'The stem', def: 'The plastic plunger under the keycap. As it moves down, it lets two metal contacts spring together.' },
+  { x: 44.5, y: 58, lx: 16, ly: 70, side: -1, text: 'The spring', term: 'The spring', def: 'The coil that pushes the key back up as soon as you let go.' },
+  { x: 63, y: 50, lx: 80, ly: 66, side: 1, text: 'The contacts', term: 'The contacts', def: 'Two thin strips of metal. When they touch, the circuit closes and the key registers.' },
+];
+---
+<div class="deflabels">
+ <div class="fig">
+  <svg class="art" viewBox="0 0 400 300" aria-hidden="true">
+    <rect x="150" y="34" width="100" height="44" rx="12" fill="#e9dcc3" />
+    <rect x="186" y="78" width="28" height="56" rx="4" fill="#b8642e" />
+    <path d="M178 150h44M178 162h44M178 174h44M178 186h44M178 198h44" stroke="#c9c2b6" stroke-width="5" stroke-linecap="round" />
+    <path d="M238 120v56M252 128v48" stroke="#a87c4a" stroke-width="6" stroke-linecap="round" />
+    <rect x="140" y="208" width="120" height="50" rx="8" fill="#3a3129" />
+  </svg>
+  <svg class="lines" aria-hidden="true">
+    {labels.map((l) => <><line class="halo" x1={`${l.x}%`} y1={`${l.y}%`} x2={`${l.lx}%`} y2={`${l.ly}%`} /><line x1={`${l.x}%`} y1={`${l.y}%`} x2={`${l.lx}%`} y2={`${l.ly}%`} /><circle cx={`${l.x}%`} cy={`${l.y}%`} r="4" /></>)}
+  </svg>
+  {labels.map((l, i) => (
+    <button type="button" class="note" popovertarget={`def-${uid}-${i}`} style={`left:${l.lx}%;top:${l.ly}%;transform:translate(${l.side > 0 ? '8px' : 'calc(-100% - 8px)'},-50%)`}>{l.text}</button>
+  ))}
+  {labels.map((l, i) => <div class="def" id={`def-${uid}-${i}`} popover><strong>{l.term}</strong><p>{l.def}</p></div>)}
+ </div>
+</div>
+
+<style>
+  /* The drawing, its lines and its labels share one 4:3 figure, so every percentage lands on the same spot. */
+  .deflabels { position: absolute; inset: 0; container-type: size; display: grid; place-items: center; color: #f9f5ef; font: 16px/1.4 system-ui, sans-serif; }
+  .fig { position: relative; width: min(62cqw, 78cqh * 4 / 3); aspect-ratio: 4 / 3; }
+  .art { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .lines { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+  .lines line { stroke: #f9f5ef; stroke-opacity: 0.85; stroke-width: 1.25; }
+  .lines line.halo { stroke: #0c0c0b; stroke-opacity: 0.6; stroke-width: 4; stroke-linecap: round; }
+  .lines circle { fill: #cc9166; stroke: rgb(12 12 11 / 0.7); stroke-width: 2.5; paint-order: stroke; }
+  .note {
+    position: absolute; margin: 0; padding: 2px 0; border: 0; background: none; color: inherit; font: inherit; white-space: nowrap; cursor: pointer;
+    text-decoration: underline dotted #ae9357; text-decoration-thickness: 1.5px; text-underline-offset: 5px;
+    text-shadow: 0 0 8px rgb(12 12 11 / 0.85), 0 1px 2px rgb(12 12 11 / 0.9); transition: color 160ms cubic-bezier(0.23, 1, 0.32, 1);
+  }
+  .note:hover { color: #fff0cc; text-decoration-style: solid; }
+  .note:active { color: #ae9357; }
+  .note:focus-visible { outline: 2px solid #cc9166; outline-offset: 4px; border-radius: 2px; }
+  .def {
+    position: fixed; inset: auto; margin: 0; max-width: calc(28ch + 100px); padding: 44px 50px; border: 0; color: #d4cfc6; font: 15px/1.5 system-ui, sans-serif;
+    background: radial-gradient(closest-side, rgb(12 12 11 / 0.9) 35%, rgb(12 12 11 / 0.5) 72%, rgb(12 12 11 / 0) 100%);
+    text-shadow: 0 0 8px rgb(12 12 11 / 0.85); opacity: 0; transform: translateY(6px);
+    transition: opacity 200ms ease-out, transform 200ms ease-out, overlay 200ms allow-discrete, display 200ms allow-discrete;
+  }
+  .def:popover-open { opacity: 1; transform: none; }
+  @starting-style { .def:popover-open { opacity: 0; transform: translateY(6px); } }
+  .def::backdrop { background: none; }
+  .def strong { display: block; font: 400 20px/1.15 Georgia, serif; color: #f9f5ef; margin-bottom: 6px; }
+  .def p { margin: 0; }
+  @media (prefers-reduced-motion: reduce) { .def, .def:popover-open { transform: none; } }
+</style>
+
+<script>
+  // Place each definition beside its label (below it, or above near the bottom of the window), and close it on scroll.
+  document.querySelectorAll<HTMLElement>('.deflabels .def').forEach((d) => {
+    let at = 0;
+    d.addEventListener('toggle', (e) => {
+      if ((e as ToggleEvent).newState !== 'open') return;
+      const b = d.parentElement?.querySelector<HTMLElement>(`[popovertarget="${d.id}"]`); if (!b) return;
+      const r = b.getBoundingClientRect(), w = d.offsetWidth, h = d.offsetHeight;
+      d.style.left = `${Math.max(0, Math.min(innerWidth - w, r.left - 50))}px`;
+      d.style.top = `${Math.max(8, r.bottom + h - 22 < innerHeight ? r.bottom - 22 : r.top - h + 22)}px`;
+      at = scrollY;
+    });
+    addEventListener('scroll', () => { if (d.matches(':popover-open') && Math.abs(scrollY - at) > 40) d.hidePopover(); }, { passive: true });
+  });
+</script>

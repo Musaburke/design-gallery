@@ -1,0 +1,68 @@
+---
+// A list of stops that jumps anywhere in a long page: the view fades to dark for a moment, lands on that stop and
+// fades back, so it never rushes through everything in between. The current stop is marked as you scroll.
+// Here it drives a scrolling box; on a page, swap the box for the window. Placeholder stops: swap in your own.
+const stops = [
+  { title: 'The key', line: 'It starts with a press.' },
+  { title: 'The switch', line: 'Two contacts close a circuit.' },
+  { title: 'The cable', line: 'The press travels as a message.' },
+  { title: 'The processor', line: 'The message is read.' },
+  { title: 'The pixel', line: 'One small light comes on.' },
+];
+---
+<div class="rail-demo">
+  <div class="scroller">
+    {stops.map((s, i) => <section data-i={i}><h3>{s.title}</h3><p>{s.line}</p></section>)}
+  </div>
+  <div class="cover" aria-hidden="true"></div>
+  <ol class="stops" aria-label="Stops">
+    {stops.map((s, i) => <li aria-current={i === 0 ? 'step' : undefined}><button type="button" data-go={i}>{s.title}</button></li>)}
+  </ol>
+</div>
+
+<style>
+  .rail-demo { position: absolute; inset: 0; overflow: hidden; color: #d4cfc6; font: 16px/1.5 system-ui, sans-serif; }
+  .scroller { position: absolute; inset: 0; overflow-y: auto; overscroll-behavior: contain; }
+  section { height: 100%; display: grid; align-content: center; gap: 8px; padding: 0 32px 64px; }
+  section:nth-child(odd) { background: #0c0c0b; }
+  section:nth-child(even) { background: #14110f; }
+  h3 { margin: 0; font: 400 clamp(30px, 4vw, 44px)/1.05 Georgia, serif; color: #f9f5ef; }
+  p { margin: 0; }
+  .cover { position: absolute; inset: 0; background: #0c0c0b; opacity: 0; pointer-events: none; transition: opacity 320ms cubic-bezier(0.23, 1, 0.32, 1); }
+  .cover.on { opacity: 1; transition-duration: 220ms; }
+  .stops { position: absolute; left: 16px; bottom: 16px; right: 16px; width: max-content; max-width: calc(100% - 32px); display: flex; flex-wrap: wrap; gap: 4px 18px; margin: 0; padding: 8px 18px; border-radius: 999px; background: #1a1918; list-style: none; color: #959089; }
+  .stops li { display: flex; align-items: center; gap: 8px; }
+  .stops li::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: #ae9357; opacity: 0; transition: opacity 300ms; }
+  .stops li[aria-current]::before { opacity: 1; }
+  .stops li[aria-current] { color: #f9f5ef; }
+  .stops button { margin: 0; padding: 4px 0; border: 0; background: none; font: inherit; color: inherit; cursor: pointer; transition: color 160ms; }
+  .stops button:hover { color: #f9f5ef; }
+  .stops button:active { color: #ae9357; }
+  .stops button:focus-visible { outline: 2px solid #cc9166; outline-offset: 3px; border-radius: 4px; }
+  @media (prefers-reduced-motion: reduce) { .cover { transition: none; } }
+</style>
+
+<script>
+  import { playsItself, whenFree } from '../../lib/preview';
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.querySelectorAll<HTMLElement>('.rail-demo').forEach((root) => {
+    const scroller = root.querySelector<HTMLElement>('.scroller')!, cover = root.querySelector<HTMLElement>('.cover')!;
+    const sections = [...scroller.querySelectorAll<HTMLElement>('section')], items = [...root.querySelectorAll('.stops li')];
+    let current = 0, jumping = false;
+    const mark = (i: number) => { current = i; items.forEach((li, k) => (k === i ? li.setAttribute('aria-current', 'step') : li.removeAttribute('aria-current'))); };
+    const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) mark(Number((e.target as HTMLElement).dataset.i)); }), { root: scroller, threshold: 0.6 });
+    sections.forEach((s) => io.observe(s));
+    // Fade to dark, land, fade back: the jump never scrolls through the stops in between.
+    const jump = (i: number) => {
+      if (jumping) return;
+      const land = () => { scroller.scrollTo({ top: sections[i]!.offsetTop, behavior: 'instant' }); mark(i); };
+      if (reduce) { land(); return; }
+      jumping = true; cover.classList.add('on');
+      setTimeout(() => { land(); requestAnimationFrame(() => requestAnimationFrame(() => { cover.classList.remove('on'); jumping = false; })); }, 230);
+    };
+    root.querySelectorAll<HTMLElement>('[data-go]').forEach((b) => b.addEventListener('click', () => jump(Number(b.dataset.go))));
+    if (!playsItself(root)) return;
+    let timer = 0;
+    whenFree(root, (free) => { clearInterval(timer); if (free) timer = window.setInterval(() => jump((current + 1) % sections.length), 2600); });
+  });
+</script>
