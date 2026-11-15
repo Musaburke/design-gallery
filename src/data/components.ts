@@ -2,7 +2,7 @@
 // `entry` is the component the pages render; `files` are shown as code, in order.
 // Paths in `files` are relative to src/ so shared helpers (lib/stage.ts) can be listed too.
 
-export type Group = 'Backgrounds' | 'Motion' | 'Navigation' | 'Sections' | 'Surfaces';
+export type Group = 'Backgrounds' | 'Motion' | 'Navigation' | 'Sections' | 'Surfaces' | 'Controls';
 
 export interface GroupInfo {
   group: Group;
@@ -21,6 +21,7 @@ export const groups: GroupInfo[] = [
   { group: 'Navigation', slug: 'navigation', heading: 'Navigation', line: 'Ways around a site, from the first menu to the last link.', feature: 'drawer-nav' },
   { group: 'Sections', slug: 'sections', heading: 'Page sections', line: 'Reviews that slide past, answers that open in place and project sections on colour.', feature: 'reviews-marquee' },
   { group: 'Surfaces', slug: 'surfaces', heading: 'Surfaces', line: 'Materials for panels and cards: frosted glass and a window for screenshots.', feature: 'glass-card' },
+  { group: 'Controls', slug: 'controls', heading: 'Controls', line: 'Things you press, open and steer with: a keycap button, labels that explain themselves, points that open in place and two ways through a long page.', feature: 'keycap-button' },
 ];
 
 export interface GalleryComponent {
@@ -202,6 +203,53 @@ export const components: GalleryComponent[] = [
     entry: 'BrowserFrame.astro',
     files: ['gallery/browser-frame/BrowserFrame.astro', 'gallery/browser-frame/Frame.astro'],
     ground: '#1c1c1c',
+  },
+  {
+    slug: 'keycap-button',
+    name: 'Keycap button',
+    group: 'Controls',
+    blurb: 'A button shaped like a keycap: a cream face on a gold-brown skirt that lifts on hover, sinks when pressed and taps itself now and then.',
+    entry: 'KeycapButton.astro',
+    files: ['gallery/keycap-button/KeycapButton.astro', 'lib/preview.ts'],
+    ground: '#0c0c0b',
+  },
+  {
+    slug: 'definition-labels',
+    name: 'Definition labels',
+    group: 'Controls',
+    blurb: 'Labels on a drawing with haloed leader lines. Press one and a short definition opens beside it on a soft shade.',
+    entry: 'DefinitionLabels.astro',
+    files: ['gallery/definition-labels/DefinitionLabels.astro'],
+    ground: '#0c0c0b',
+  },
+  {
+    slug: 'go-deeper',
+    name: 'Go deeper',
+    group: 'Controls',
+    blurb: 'A lead line, then a disclosure that opens into three titled points rising in one after another.',
+    entry: 'GoDeeper.astro',
+    files: ['gallery/go-deeper/GoDeeper.astro', 'lib/preview.ts'],
+    ground: '#0c0c0b',
+  },
+  {
+    slug: 'stop-rail',
+    name: 'Stop rail',
+    group: 'Controls',
+    blurb: 'A list of stops that jumps anywhere in a long page behind a short fade, and marks where you are as you scroll.',
+    entry: 'StopRail.astro',
+    files: ['gallery/stop-rail/StopRail.astro', 'lib/preview.ts'],
+    ground: '#0c0c0b',
+    tall: true,
+  },
+  {
+    slug: 'momentum-keys',
+    name: 'Momentum keys',
+    group: 'Controls',
+    blurb: 'Arrow keys as momentum: a tap glides one section, a hold cruises at a capped speed, and letting go slows gently onto the next section.',
+    entry: 'MomentumKeys.astro',
+    files: ['gallery/momentum-keys/MomentumKeys.astro', 'lib/preview.ts'],
+    ground: '#0c0c0b',
+    tall: true,
   },
 ];
 
