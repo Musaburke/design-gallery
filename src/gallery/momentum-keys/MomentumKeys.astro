@@ -1,0 +1,92 @@
+---
+// Arrow keys as momentum, for a long page told in sections. A tap glides to the next section on a sine ease; holding
+// eases up to a steady, capped cruise (key repeat adds nothing, so it never races); letting go slows down over a
+// second or two and comes to rest exactly on the next section ahead. The wheel and touch are left alone.
+// Here it steers a scrolling box you click into; on a page, listen on the window. Placeholder sections.
+const sections = ['Press', 'Close', 'Send', 'Read', 'Draw', 'Light'];
+---
+<div class="keys-demo">
+  <div class="scroller" tabindex="0" aria-label="Sections. Use the up and down arrow keys to move through them.">
+    {sections.map((s, i) => <section><h3>{s}</h3><p>Section {i + 1} of {sections.length}. Tap or hold the arrow keys.</p></section>)}
+  </div>
+  <p class="hint" aria-hidden="true">Click, then tap or hold <kbd>↓</kbd></p>
+</div>
+
+<style>
+  .keys-demo { position: absolute; inset: 0; overflow: hidden; color: #d4cfc6; font: 16px/1.5 system-ui, sans-serif; }
+  .scroller { position: absolute; inset: 0; overflow-y: auto; overscroll-behavior: contain; outline: none; }
+  .scroller:focus-visible { box-shadow: inset 0 0 0 2px #cc9166; }
+  section { height: 100%; display: grid; align-content: center; gap: 8px; padding: 0 32px; }
+  section:nth-child(odd) { background: #0c0c0b; }
+  section:nth-child(even) { background: #14110f; }
+  h3 { margin: 0; font: 400 clamp(34px, 5vw, 52px)/1.05 Georgia, serif; color: #f9f5ef; }
+  p { margin: 0; }
+  .hint { position: absolute; right: 16px; bottom: 16px; margin: 0; padding: 8px 14px; border-radius: 999px; background: #1a1918; color: #959089; font-size: 15px; pointer-events: none; }
+  kbd { font: inherit; color: #f9f5ef; }
+  @media (pointer: coarse) { .hint { display: none; } } /* no arrow keys on a touch screen */
+</style>
+
+<script>
+  import { playsItself, whenFree } from '../../lib/preview';
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const CRUISE = 760, RAMP = 0.7, TAP = 160; // px/s, seconds to reach cruise, below this a release counts as a tap
+  const inOut = (k: number) => (1 - Math.cos(Math.PI * k)) / 2, out = (k: number) => 1 - Math.pow(1 - k, 3);
+
+  document.querySelectorAll<HTMLElement>('.keys-demo').forEach((root) => {
+    const box = root.querySelector<HTMLElement>('.scroller')!;
+    const beats = () => [...box.querySelectorAll<HTMLElement>('section')].map((s) => s.offsetTop);
+    type Drive = { dir: number; mode: 'hold' | 'settle'; y: number; v: number; held: number; last: number; raf: number; y0?: number; y1?: number; T?: number; t?: number; ease?: (k: number) => number };
+    let drive: Drive | null = null;
+    const max = () => box.scrollHeight - box.clientHeight;
+    const next = (from: number, dir: number) => (dir > 0 ? beats().find((b) => b > from + 2) : [...beats()].reverse().find((b) => b < from - 2));
+    const stop = () => { if (drive) cancelAnimationFrame(drive.raf); drive = null; };
+    const tick = (now: number) => {
+      const d = drive; if (!d) return;
+      const dt = Math.min(0.05, (now - d.last) / 1000); d.last = now;
+      if (d.mode === 'hold') {
+        d.held += dt; const k = Math.min(1, d.held / RAMP); d.v = CRUISE * k * k * (3 - 2 * k);
+        d.y = Math.max(0, Math.min(max(), d.y + d.dir * d.v * dt));
+        if (d.y === 0 || d.y === max()) { box.scrollTop = d.y; drive = null; return; }
+      } else {
+        d.t! += dt; const k = Math.min(1, d.t! / d.T!); d.y = d.y0! + (d.y1! - d.y0!) * d.ease!(k);
+        if (k >= 1) { box.scrollTop = d.y; drive = null; return; }
+      }
+      box.scrollTop = d.y; d.raf = requestAnimationFrame(tick);
+    };
+    const settle = (y1: number, T: number, ease: (k: number) => number) => { if (drive) Object.assign(drive, { mode: 'settle', y0: drive.y, y1, T, t: 0, ease }); };
+    const press = (dir: number) => {
+      if (reduce) { const b = next(box.scrollTop, dir); if (b !== undefined) box.scrollTop = b; return; }
+      if (drive?.mode === 'hold' && drive.dir === dir) return;
+      const carry = drive && drive.dir === dir ? Math.min(1, drive.v / CRUISE) : 0, y = drive ? drive.y : box.scrollTop; stop();
+      drive = { dir, mode: 'hold', y, v: carry * CRUISE, held: carry * RAMP * 0.6, last: performance.now(), raf: 0 };
+      drive.raf = requestAnimationFrame(tick);
+    };
+    const release = () => {
+      if (!drive || drive.mode !== 'hold') return;
+      const { dir, v, y } = drive;
+      let b = next(y, dir); if (b === undefined) { stop(); return; }
+      if (v < TAP) { settle(b, Math.min(1.9, Math.max(1, Math.abs(b - y) / 600)), inOut); return; }
+      while ((3 * Math.abs(b - y)) / v < 1.1) { const n = next(b, dir); if (n === undefined) break; b = n; }
+      settle(b, Math.min(2.8, (3 * Math.abs(b - y)) / v), out);
+    };
+    box.addEventListener('keydown', (e) => {
+      const dir = e.key === 'ArrowDown' || e.key === 'PageDown' ? 1 : e.key === 'ArrowUp' || e.key === 'PageUp' ? -1 : 0;
+      if (!dir) return;
+      e.preventDefault(); if (!e.repeat) press(dir);
+    });
+    box.addEventListener('keyup', release); box.addEventListener('blur', release);
+    box.addEventListener('wheel', stop, { passive: true }); box.addEventListener('touchstart', stop, { passive: true });
+    // In a preview card: a tap every few seconds, then a glide back to the top at the end.
+    if (!playsItself(root)) return;
+    let timer = 0;
+    whenFree(root, (free) => {
+      clearInterval(timer); if (!free) { stop(); return; }
+      timer = window.setInterval(() => {
+        const atEnd = box.scrollTop >= max() - 2;
+        drive = { dir: atEnd ? -1 : 1, mode: 'settle', y: box.scrollTop, v: 0, held: 0, last: performance.now(), raf: 0 };
+        settle(atEnd ? 0 : next(box.scrollTop, 1) ?? 0, atEnd ? 1.8 : 1.1, inOut);
+        drive.raf = requestAnimationFrame(tick);
+      }, 2600);
+    });
+  });
+</script>

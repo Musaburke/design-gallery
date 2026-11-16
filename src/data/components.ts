@@ -17,9 +17,9 @@ export interface GroupInfo {
 // In page order. The landing page, the group pages and the header all read this.
 export const groups: GroupInfo[] = [
   { group: 'Backgrounds', slug: 'backgrounds', heading: 'Backgrounds', line: 'Living fields that sit behind everything else on a page, or hold the middle of it.', feature: 'starfield' },
-  { group: 'Motion', slug: 'motion', heading: 'Motion and effects', line: 'Effects that play once, run on a loop or follow the cursor.', feature: 'liquid-orb' },
-  { group: 'Navigation', slug: 'navigation', heading: 'Navigation', line: 'Ways around a site, from the first menu to the last link.', feature: 'drawer-nav' },
-  { group: 'Sections', slug: 'sections', heading: 'Page sections', line: 'Reviews that slide past, answers that open in place, project sections on colour, a spot-the-fake quiz and a support chat.', feature: 'reviews-marquee' },
+  { group: 'Motion', slug: 'motion', heading: 'Motion and effects', line: 'Effects that play once, run on a loop, follow the cursor or follow the scroll, and sound that sets the mood.', feature: 'liquid-orb' },
+  { group: 'Navigation', slug: 'navigation', heading: 'Navigation', line: 'Ways around a site, from the first menu to the last link, and through a long page told in sections.', feature: 'drawer-nav' },
+  { group: 'Sections', slug: 'sections', heading: 'Page sections', line: 'Reviews that slide past, answers that open in place, project sections on colour, a spot-the-fake quiz, a support chat and a figure whose labels explain themselves.', feature: 'reviews-marquee' },
   { group: 'Surfaces', slug: 'surfaces', heading: 'Surfaces', line: 'Materials for panels and cards: frosted glass, a liquid glass lens and a window for screenshots.', feature: 'glass-card' },
 ];
 
@@ -157,6 +157,25 @@ export const components: GalleryComponent[] = [
     ground: '#1c1c1c',
   },
   {
+    slug: 'scroll-camera',
+    name: 'Scroll camera',
+    group: 'Motion',
+    blurb: 'Scroll and the camera glides between framed shots around a 3D model, on curves timed so its speed never jumps, with a spring so it eases in.',
+    entry: 'ScrollCamera.astro',
+    files: ['gallery/scroll-camera/ScrollCamera.astro', 'gallery/scroll-camera/scene.ts', 'gallery/scroll-camera/flow.ts', 'lib/stage.ts'],
+    ground: '#0c0b0a',
+    tall: true,
+  },
+  {
+    slug: 'letter-pixels',
+    name: 'Letter to pixels',
+    group: 'Motion',
+    blurb: 'How a screen draws a letter: the outline traced from the font, a grid laid over it, then each pixel lit by how much of the letter covers it. Type any letter.',
+    entry: 'LetterPixels.astro',
+    files: ['gallery/letter-pixels/LetterPixels.astro', 'lib/preview.ts'],
+    ground: '#0c0b0a',
+  },
+  {
     slug: 'drawer-nav',
     name: 'Drawer navbar',
     group: 'Navigation',
@@ -247,6 +266,35 @@ export const components: GalleryComponent[] = [
     entry: 'BrowserFrame.astro',
     files: ['gallery/browser-frame/BrowserFrame.astro', 'gallery/browser-frame/Frame.astro'],
     ground: '#1c1c1c',
+  },
+  {
+    slug: 'labelled-figure',
+    name: 'Labelled figure',
+    group: 'Sections',
+    blurb: 'A drawing with labels on haloed leader lines that read on light and dark. Press a label and a short definition opens beside it.',
+    entry: 'LabelledFigure.astro',
+    files: ['gallery/labelled-figure/LabelledFigure.astro'],
+    ground: '#0c0c0b',
+  },
+  {
+    slug: 'stop-rail',
+    name: 'Stop rail',
+    group: 'Navigation',
+    blurb: 'A list of stops that jumps anywhere in a long page behind a short fade, and marks where you are as you scroll.',
+    entry: 'StopRail.astro',
+    files: ['gallery/stop-rail/StopRail.astro', 'lib/preview.ts'],
+    ground: '#0c0c0b',
+    tall: true,
+  },
+  {
+    slug: 'momentum-keys',
+    name: 'Momentum keys',
+    group: 'Navigation',
+    blurb: 'Arrow keys as momentum: a tap glides one section, a hold cruises at a capped speed, and letting go slows gently onto the next section.',
+    entry: 'MomentumKeys.astro',
+    files: ['gallery/momentum-keys/MomentumKeys.astro', 'lib/preview.ts'],
+    ground: '#0c0c0b',
+    tall: true,
   },
 ];
 

@@ -1,0 +1,77 @@
+---
+// How a screen draws a letter: its outline comes from the font, a grid of pixels is laid over it, and each pixel is
+// filled by how much of the shape covers it, so the edge pixels are only partly lit. The coverage is the browser's
+// own anti-aliased drawing of the glyph at grid size, so the in-between shades are real. Type any letter.
+---
+<div class="lpx" data-lpx>
+  <canvas aria-hidden="true"></canvas>
+  <label class="pick">Letter <input type="text" maxlength="1" value="M" autocomplete="off" spellcheck="false" /></label>
+</div>
+
+<style>
+  .lpx { position: absolute; inset: 0; overflow: hidden; }
+  .lpx canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .pick { position: absolute; left: 16px; bottom: 14px; display: flex; align-items: center; gap: 10px; color: #959089; font: 15px/1 system-ui, sans-serif; }
+  .pick input { width: 2.4em; height: 2.2em; border: 0; border-radius: 8px; background: #1f1c19; color: #f9f5ef; font: 500 17px/1 system-ui, sans-serif; text-align: center; }
+  .pick input:focus-visible { outline: 2px solid #cc9166; outline-offset: 2px; }
+</style>
+
+<script>
+  import { playsItself, whenFree } from '../../lib/preview';
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const N = 20, FONT = '600 {s}px system-ui, -apple-system, "Segoe UI", sans-serif';
+
+  // Fit the letter into a square of side n, the same way at any n, so the outline and the coverage match.
+  function draw(g: CanvasRenderingContext2D, ch: string, n: number, mode: 'fill' | 'stroke') {
+    g.font = FONT.replace('{s}', String(n * 0.8)); g.textBaseline = 'alphabetic'; g.textAlign = 'left';
+    const m = g.measureText(ch), w = m.actualBoundingBoxLeft + m.actualBoundingBoxRight, h = m.actualBoundingBoxAscent + m.actualBoundingBoxDescent;
+    const k = Math.min((n * 0.78) / w, (n * 0.78) / h);
+    g.save(); g.translate(n / 2, n / 2); g.scale(k, k);
+    const x = -w / 2 + m.actualBoundingBoxLeft, y = h / 2 - m.actualBoundingBoxDescent;
+    if (mode === 'fill') g.fillText(ch, x, y); else { g.lineWidth = 1.6 / k; g.strokeText(ch, x, y); }
+    g.restore();
+  }
+  function coverage(ch: string) {
+    const c = document.createElement('canvas'); c.width = c.height = N;
+    const g = c.getContext('2d', { willReadFrequently: true })!; g.fillStyle = '#fff'; draw(g, ch, N, 'fill');
+    const a = g.getImageData(0, 0, N, N).data; return Array.from({ length: N * N }, (_, i) => a[i * 4 + 3]! / 255);
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-lpx]').forEach((root) => {
+    const canvas = root.querySelector('canvas')!, input = root.querySelector('input')!, g = canvas.getContext('2d')!;
+    let ch = 'M', cov = coverage(ch), t0 = performance.now(), raf = 0, loop = false;
+    const DUR = 5200; // outline 0-0.35, grid 0.3-0.45, fill 0.45-0.85, hold to 1
+    const ease = (x: number) => x * x * (3 - 2 * x), seg = (x: number, a: number, b: number) => Math.min(1, Math.max(0, (x - a) / (b - a)));
+    const frame = (now: number) => {
+      const dpr = Math.min(devicePixelRatio || 1, 2), W = canvas.clientWidth, H = canvas.clientHeight;
+      if (canvas.width !== Math.round(W * dpr)) { canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr); }
+      g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, W, H);
+      const t = reduce ? 1 : Math.min(1, (now - t0) / DUR), side = Math.min(W, H) * 0.78, x0 = (W - side) / 2, y0 = (H - side) / 2 - 8, cell = side / N;
+      // the grid
+      const grid = ease(seg(t, 0.3, 0.45));
+      if (grid > 0) { g.strokeStyle = `rgba(233,212,173,${0.14 * grid})`; g.lineWidth = 1; g.beginPath(); for (let i = 0; i <= N; i++) { g.moveTo(x0 + i * cell, y0); g.lineTo(x0 + i * cell, y0 + side); g.moveTo(x0, y0 + i * cell); g.lineTo(x0 + side, y0 + i * cell); } g.stroke(); }
+      // the pixels, row by row, each lit by its coverage
+      const fill = seg(t, 0.45, 0.85);
+      for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) {
+        const c = cov[j * N + i]!, on = ease(seg(fill * 1.3 - (j / N) * 0.9 - (i / N) * 0.1, 0, 0.3));
+        if (on <= 0) continue;
+        const pad = cell * 0.1, lit = c * on;
+        g.fillStyle = c > 0.02 ? `rgba(255,${Math.round(196 + 30 * c)},${Math.round(140 + 60 * c)},${0.08 + 0.92 * lit * lit})` : `rgba(60,48,38,${0.6 * on})`;
+        g.beginPath(); g.roundRect(x0 + i * cell + pad, y0 + j * cell + pad, cell - pad * 2, cell - pad * 2, cell * 0.16); g.fill();
+      }
+      // the outline, traced on, then fading back as the pixels take over
+      const draw1 = ease(seg(t, 0, 0.35)), fade = 1 - 0.8 * seg(t, 0.5, 0.85);
+      if (draw1 > 0 && fade > 0) {
+        g.save(); g.translate(x0, y0); g.scale(side / 512, side / 512);
+        g.setLineDash([2400 * draw1, 2400]); g.strokeStyle = `rgba(255,207,143,${fade})`; draw(g, ch, 512, 'stroke'); g.restore();
+      }
+      raf = t < 1 || loop ? requestAnimationFrame(frame) : 0;
+      if (t >= 1 && loop && now - t0 > DUR + 1800) t0 = now; // play again in a preview card
+    };
+    const play = () => { cancelAnimationFrame(raf); t0 = performance.now(); raf = requestAnimationFrame(frame); };
+    input.addEventListener('input', () => { const v = input.value.trim(); if (!v) return; ch = v; cov = coverage(ch); play(); });
+    new ResizeObserver(() => { if (!raf) raf = requestAnimationFrame(frame); }).observe(canvas);
+    new IntersectionObserver(([e]) => { if (e?.isIntersecting) play(); }, { threshold: 0.4 }).observe(root);
+    if (playsItself(root)) whenFree(root, (free) => { loop = free; if (free) play(); });
+  });
+</script>
