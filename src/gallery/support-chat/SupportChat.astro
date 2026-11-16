@@ -1,0 +1,116 @@
+---
+// A support chat panel: a coloured header, bubbles for the agent and for you, a typing line
+// and a message box. Type a message and press Enter (Shift+Enter for a new line) and the agent
+// answers from a short list of canned replies, so it needs no server. Everything shown is built
+// with textContent, never innerHTML, which is the rule for any chat that shows text it did not
+// write. The company is invented.
+const sample = [
+  { who: 'bot', text: 'Hi, I am Pip from Oakway Support. How can I help today?' },
+  { who: 'you', text: 'Can I change my delivery day?' },
+  { who: 'bot', text: 'Yes. Open Orders, pick the order and choose a new day. It takes about a minute.' },
+];
+---
+<div class="chat" data-chat>
+  <div class="panel" data-ui="chat">
+    <div class="head">
+      <span class="logo" aria-hidden="true">O</span>
+      <div>
+        <div class="title">Oakway Support</div>
+        <div class="sub">Usually replies in a few seconds</div>
+      </div>
+    </div>
+    <ol class="log" data-log aria-live="polite" aria-label="Conversation">
+      {sample.map((m) => <li class={`msg msg--${m.who}`}>{m.text}</li>)}
+    </ol>
+    <form class="form" data-form>
+      <label for="chat-msg" class="visually-hidden">Message Oakway Support</label>
+      <textarea id="chat-msg" rows="1" maxlength="200" placeholder="Type a message" required data-input></textarea>
+      <button class="send" type="submit" data-send>Send</button>
+    </form>
+  </div>
+</div>
+
+<style>
+  .chat { position: absolute; inset: 0; display: grid; place-items: center; padding: 1.25rem; }
+  .panel {
+    --p-ground: #f2f5f2; --p-surface: #ffffff; --p-border: #dbe3dc; --p-text: #10231a; --p-muted: #5a6b61;
+    --p-brand: #1f5a43; --p-brand-ink: #ffffff;
+    width: min(100%, 24rem); height: min(100%, 31rem);
+    display: flex; flex-direction: column; overflow: hidden;
+    background: var(--p-ground); color: var(--p-text); border-radius: 12px;
+    font-family: system-ui, sans-serif; font-size: 15px; line-height: 1.45;
+  }
+  .head { display: flex; align-items: center; gap: 10px; padding: 14px 16px; background: var(--p-brand); color: var(--p-brand-ink); }
+  .logo { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; flex: none; background: var(--p-brand-ink); color: var(--p-brand); font-weight: 700; font-size: 14px; }
+  .title { font-weight: 500; }
+  .sub { font-size: 12px; opacity: 0.8; }
+  .log { list-style: none; margin: 0; padding: 16px; flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+  .msg { max-width: 84%; padding: 9px 12px; border-radius: 12px; overflow-wrap: anywhere; white-space: pre-wrap; }
+  .msg--bot { align-self: flex-start; background: var(--p-surface); border-bottom-left-radius: 4px; }
+  .msg--you { align-self: flex-end; background: var(--p-brand); color: var(--p-brand-ink); border-bottom-right-radius: 4px; }
+  .msg--typing { align-self: flex-start; background: none; padding: 2px 4px; color: var(--p-muted); font-size: 13px; }
+  .form { display: flex; gap: 8px; padding: 12px; background: var(--p-surface); }
+  textarea {
+    flex: 1; resize: none; min-height: 44px; max-height: 120px; padding: 11px 12px; border: 0; border-radius: 6px;
+    background: var(--p-ground); color: var(--p-text); font: inherit;
+  }
+  textarea:focus-visible { outline: 2px solid var(--p-brand); outline-offset: 1px; }
+  .send {
+    min-width: 72px; height: 44px; align-self: flex-end; border: 0; border-radius: 6px; cursor: pointer;
+    background: var(--p-brand); color: var(--p-brand-ink); font: 500 15px/1 system-ui, sans-serif;
+    transition: transform 140ms cubic-bezier(0.23, 1, 0.32, 1), background-color 140ms ease;
+  }
+  .send:hover:not(:disabled) { background: #17473a; }
+  .send:active:not(:disabled) { transform: scale(0.96); }
+  .send:disabled { opacity: 0.55; cursor: progress; }
+  .send:focus-visible { outline: 2px solid var(--p-brand); outline-offset: 2px; }
+  .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  @media (prefers-reduced-motion: reduce) { .send { transition: none; } }
+</style>
+
+<script>
+  const REPLIES = [
+    'Thanks, I have noted that. Anything else I can check for you?',
+    'Good question. Give me a moment and I will look at your account.',
+    'That should be sorted now. You will get an email to confirm it.',
+    'I can pass this to a person if you would like. Just say so.',
+  ];
+
+  document.querySelectorAll<HTMLElement>('[data-chat]').forEach((root) => {
+    const log = root.querySelector<HTMLOListElement>('[data-log]')!;
+    const form = root.querySelector<HTMLFormElement>('[data-form]')!;
+    const input = root.querySelector<HTMLTextAreaElement>('[data-input]')!;
+    const send = root.querySelector<HTMLButtonElement>('[data-send]')!;
+    const slow = !matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let turn = 0;
+
+    const add = (who: 'bot' | 'you' | 'typing', text: string) => {
+      const li = document.createElement('li');
+      li.className = `msg msg--${who}`;
+      li.textContent = text;
+      log.append(li);
+      log.scrollTop = log.scrollHeight;
+      return li;
+    };
+    log.scrollTop = log.scrollHeight;
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const text = input.value.trim();
+      if (!text || send.disabled) return;
+      add('you', text);
+      input.value = '';
+      send.disabled = true;
+      const typing = add('typing', 'Pip is typing…');
+      window.setTimeout(() => {
+        typing.remove();
+        add('bot', REPLIES[turn++ % REPLIES.length]);
+        send.disabled = false;
+        input.focus({ preventScroll: true });
+      }, slow ? 900 : 200);
+    });
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); form.requestSubmit(); }
+    });
+  });
+</script>

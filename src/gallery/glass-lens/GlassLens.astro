@@ -1,0 +1,74 @@
+---
+// Liquid glass lens, centred in its parent. Hover it and it dents and leans towards the
+// cursor; tap it and it ripples and swaps to the next picture with a cross-fade. The two
+// pictures are drawn in code so the demo needs no image files: pass your own photos to
+// mountGlass instead. In a grid card it swaps by itself while nobody is pointing at it.
+---
+<canvas class="lens" data-lens tabindex="0" role="button" aria-label="Show the next picture"></canvas>
+
+<style>
+  .lens {
+    position: absolute; left: 50%; top: 50%;
+    height: 92%; max-width: 92%; aspect-ratio: 1;
+    transform: translate(calc(-50% + var(--lx, 0px)), calc(-50% + var(--ly, 0px)));
+    cursor: pointer;
+    border-radius: 50%;
+  }
+  .lens:focus-visible { outline: 2px solid #cef79e; outline-offset: 4px; }
+</style>
+
+<script>
+  import { mountGlass } from './glass';
+  import { playsItself, whenFree } from '../../lib/preview';
+
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+
+  // Two placeholder pictures, drawn once: a dusk with hills, and a tide of wave lines.
+  function dusk() {
+    const c = document.createElement('canvas');
+    c.width = c.height = 1024;
+    const g = c.getContext('2d')!;
+    const sky = g.createLinearGradient(0, 0, 0, 1024);
+    sky.addColorStop(0, '#1b1f5a'); sky.addColorStop(0.55, '#8a4a8f'); sky.addColorStop(1, '#f2a65a');
+    g.fillStyle = sky; g.fillRect(0, 0, 1024, 1024);
+    g.fillStyle = '#ffe3b0'; g.beginPath(); g.arc(640, 560, 120, 0, Math.PI * 2); g.fill();
+    [['#4a2f6b', 700, 260], ['#2f1f52', 800, 320], ['#1a1238', 900, 380]].forEach(([col, y, rx], i) => {
+      g.fillStyle = col as string;
+      g.beginPath(); g.ellipse(250 + i * 330, y as number, rx as number, 190, 0, 0, Math.PI * 2); g.fill();
+      g.fillRect(0, (y as number) + 40, 1024, 1024);
+    });
+    return c;
+  }
+  function tide() {
+    const c = document.createElement('canvas');
+    c.width = c.height = 1024;
+    const g = c.getContext('2d')!;
+    g.fillStyle = '#06303f'; g.fillRect(0, 0, 1024, 1024);
+    for (let i = 0; i < 22; i++) {
+      g.strokeStyle = i % 3 === 0 ? '#cef79e' : i % 3 === 1 ? '#3fb6a8' : '#0d5274';
+      g.lineWidth = 16 + (i % 4) * 5;
+      g.beginPath();
+      for (let x = 0; x <= 1024; x += 16) {
+        const y = 60 + i * 44 + Math.sin(x / 90 + i * 0.7) * 26;
+        x === 0 ? g.moveTo(x, y) : g.lineTo(x, y);
+      }
+      g.stroke();
+    }
+    return c;
+  }
+
+  document.querySelectorAll<HTMLCanvasElement>('[data-lens]').forEach((canvas) => {
+    const pictures = [dusk(), tide()];
+    const lens = mountGlass(canvas, pictures, () => reduce.matches);
+    let i = 0;
+    const next = () => { i = (i + 1) % pictures.length; lens.show(i); };
+    canvas.addEventListener('click', next);
+    canvas.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); next(); } });
+
+    const host = canvas.parentElement;
+    if (host && playsItself(host)) {
+      let timer = 0;
+      whenFree(host, (free) => { clearInterval(timer); if (free) timer = window.setInterval(next, 5000); });
+    }
+  });
+</script>
