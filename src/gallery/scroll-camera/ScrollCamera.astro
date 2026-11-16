@@ -1,0 +1,45 @@
+---
+// A camera that glides between framed shots as you scroll, around a model built in code. Scroll inside the box.
+// The shots, the curves and the timing live in scene.ts; flow.ts holds the maths that keeps the speed even.
+// Three.js loads only once the box scrolls into view.
+const captions = ['Wide', 'Close on one key', 'Low, from the side', 'Straight down'];
+---
+<div class="scam" data-scam>
+  <canvas aria-hidden="true"></canvas>
+  <div class="track" tabindex="0" aria-label="Scroll to move the camera between four shots of a small keyboard">
+    {captions.map((c) => <section><p>{c}</p></section>)}
+  </div>
+</div>
+
+<style>
+  .scam { position: absolute; inset: 0; overflow: hidden; background: radial-gradient(ellipse at 50% 40%, #1d1712, #0c0b0a 70%); }
+  .scam canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .track { position: absolute; inset: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; outline: none; }
+  .track::-webkit-scrollbar { display: none; }
+  .track:focus-visible { box-shadow: inset 0 0 0 2px #cc9166; }
+  section { height: 100%; display: flex; align-items: flex-end; padding: 0 20px 18px; }
+  section:last-child { height: 100%; }
+  p { margin: 0; padding: 6px 12px; border-radius: 999px; background: rgb(12 11 10 / 0.7); color: #e9e0cf; font: 15px/1.3 system-ui, sans-serif; }
+</style>
+
+<script>
+  import { playsItself, whenFree } from '../../lib/preview';
+  document.querySelectorAll<HTMLElement>('[data-scam]').forEach((root) => {
+    const canvas = root.querySelector('canvas')!, track = root.querySelector<HTMLElement>('.track')!;
+    const io = new IntersectionObserver(([e]) => {
+      if (!e?.isIntersecting) return;
+      io.disconnect();
+      import('./scene').then((m) => m.mountScrollCamera(canvas, track));
+    }, { rootMargin: '200px' });
+    io.observe(root);
+    // In a preview card: scroll slowly down, rest, glide back, while on screen and untouched.
+    if (!playsItself(root)) return;
+    let raf = 0, dir = 1, rest = 0;
+    const tick = (t: number) => {
+      const max = track.scrollHeight - track.clientHeight;
+      if (t > rest) { track.scrollTop += dir * 2.2; if (track.scrollTop >= max - 1 || track.scrollTop <= 0) { dir = -dir; rest = t + 1400; } }
+      raf = requestAnimationFrame(tick);
+    };
+    whenFree(root, (free) => { cancelAnimationFrame(raf); if (free) raf = requestAnimationFrame(tick); });
+  });
+</script>
