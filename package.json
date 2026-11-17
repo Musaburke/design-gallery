@@ -14,15 +14,15 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@tailwindcss/vite": "^4.3.3",
-    "astro": "^7.4.4",
+    "@tailwindcss/vite": "^4.3.5",
+    "astro": "^7.4.12",
     "tailwindcss": "^4.3.3",
-    "three": "^0.186.1"
+    "three": "^0.187.0"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.12",
-    "@types/three": "^0.186.0",
+    "@types/three": "^0.187.0",
     "typescript": "^6.0.3",
-    "wrangler": "^4.159.0"
+    "wrangler": "^4.162.0"
   }
 }
