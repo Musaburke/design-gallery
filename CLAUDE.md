@@ -30,7 +30,7 @@ Stack: Astro 7, TypeScript, Tailwind 4, `three`. Run with `npm run dev`. Check w
 ## Rules
 - Placeholders only. No client logos, contact details, socials or personal data from `site.ts`. A component from a client site keeps the code and loses the content.
 - The chrome stays quiet and dark: one ground, one ink, the sage accent on the mark and focus only. The components are the loud part.
-- Skills: `design-taste-frontend` (app-screen rules) and `emil-design-eng` for UI. Run `impeccable` and `web-design-guidelines` after a section. Skills live in `.claude/skills`, copied from `DBS-cleaning`.
+- Skills: `design-memory` and `emil-design-eng` (polish only) for UI. Run design-memory's judge and `web-design-guidelines` after a section. Skills live in `.claude/skills`, copied from `DBS-cleaning`.
 
 ## Skill demos
 - One made-up product, Tallbook, built once per design skill and once with none. The brief and the full copy are in `src/data/skill-demos/brief.md`, and every version uses them word for word.
