@@ -58,7 +58,7 @@ const lines = u && p ? [
       <aside aria-label="About this version">
         <dl>
           <div><dt>Skill</dt><dd>{d.skill ? <code translate="no">{d.skill}</code> : 'None'}</dd></div>
-          <div><dt>Built by</dt><dd>A fresh agent allowed this skill and nothing else</dd></div>
+          <div><dt>Built by</dt><dd>{d.builtBy ?? 'A fresh agent allowed this skill and nothing else'}</dd></div>
           <div><dt>Brief</dt><dd><a href="/skills/brief/">The same for every version</a></dd></div>
           {u && (
             <div><dt>Build</dt><dd>{u.requests} requests, {u.toolCalls} tool calls{u.minutes !== null && `, ${u.minutes} min`}</dd></div>
@@ -66,7 +66,7 @@ const lines = u && p ? [
         </dl>
         {u && (
           <table class="usage">
-            <caption>Tokens and API cost (<code translate="no">{u.model}</code>)</caption>
+            <caption>Tokens and API cost (<code translate="no">{u.model}</code>){u.estimated && ', estimated for a fresh session'}</caption>
             <thead><tr><th scope="col">Kind</th><th scope="col">Tokens</th><th scope="col">Cost</th></tr></thead>
             <tbody>
               {lines.map((l) => (

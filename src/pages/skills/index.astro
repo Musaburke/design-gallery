@@ -36,7 +36,7 @@ const fresh = (u: NonNullable<ReturnType<typeof usageOf>>) => u.tokens.input + u
               <p class="line">{d.line}</p>
               {usageOf(d) && (
                 <p class="stats">
-                  <span>{fmt.usd(usageOf(d)!.costUsd)} at API prices</span>
+                  <span>{usageOf(d)!.estimated ? 'About ' : ''}{fmt.usd(usageOf(d)!.costUsd)} at API prices{usageOf(d)!.estimated ? ' (estimated)' : ''}</span>
                   <span>{fmt.compact(usageOf(d)!.tokens.output)} tokens written</span>
                   <span>{usageOf(d)!.toolCalls} tool calls</span>
                   {usageOf(d)!.minutes !== null && <span>{usageOf(d)!.minutes} min</span>}
@@ -96,7 +96,7 @@ const fresh = (u: NonNullable<ReturnType<typeof usageOf>>) => u.tokens.input + u
                 <th scope="row"><a href={`/skills/${d.id}/`}>{d.name}</a></th>
                 {u ? (
                   <>
-                    <td>{fmt.usd(u.costUsd)}</td>
+                    <td>{fmt.usd(u.costUsd)}{u.estimated && ' (est.)'}</td>
                     <td>{fmt.whole(u.tokens.output)}</td>
                     <td>{fmt.whole(fresh(u))}</td>
                     <td>{fmt.whole(u.tokens.cache_read)}</td>
