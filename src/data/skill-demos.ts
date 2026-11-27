@@ -15,8 +15,6 @@ export interface SkillDemo {
   line: string;
   /** What the skill led the builder to decide, from its report. */
   notes: string[];
-  /** Who built it, when it wasn't a fresh agent allowed only this skill. */
-  builtBy?: string;
 }
 
 export const skillDemos: SkillDemo[] = [
@@ -99,16 +97,14 @@ export const skillDemos: SkillDemo[] = [
     id: 'design-memory',
     name: 'Design memory',
     skill: 'design-memory',
-    builtBy: 'Claude in a chat with Musa, who answered its questions and picked between its samples',
     line: 'Builds from your own references and remembered taste, shows a sample that stays in the build, and is checked by a judge trained on your picks.',
     notes: [
-      'Built differently from the others: inside a long chat with Musa, not by a fresh agent, because the skill grills the person first and shows them samples. Four questions set the brief: treat it as his own site, borrow from his AI field guide, light versus dark takes, and the note turning into cards as the one stand-out moment.',
+      'Built differently from the others: inside a chat with me, not by a fresh agent, because the skill grills the person first and shows them samples. Four questions set the brief: treat it as my own site, borrow from my AI field guide, light versus dark takes, and the note turning into cards as the one stand-out moment.',
       'Reference: the AI field guide. Cream paper, pastel green, a dark pill for the main action, Clash Grotesk with Plus Jakarta Sans.',
-      'The hero sample was built inside the real files with a switch between a light and a dark take. Musa picked light (“feels smooth, simple but looks good with features”), the dark tokens and the switch were deleted, and the hero stayed as the final one.',
+      'The hero sample was built inside the real files with a switch between a light and a dark take. I picked light (“feels smooth, simple but looks good with features”), the dark tokens and the switch were deleted, and the hero stayed as the final one.',
       'Signature move: each idea in the Week 6 note lights up, then lifts out of its line and travels into its revision card, which says which line it came from.',
       'Features are tabs with a small working preview each; the cards flip; questions open with a short height animation.',
-      'The judge (Sonnet) said “unsure” at both milestones. Its fixes for empty space, faint text and ragged card edges went in; its “too template-like” note was overruled by Musa’s own words, and he later agreed it was “a bit template-like, but not bad for something like this”.',
-      'Cost is estimated for a fresh session (about 46 requests). Measured inside the long planning chat it was $5.10, because every request re-read that chat’s history.',
+      'The judge (Sonnet) said “unsure” at both milestones. Its fixes for empty space, faint text and ragged card edges went in; its “too template-like” note was overruled at first, and I later agreed it was “a bit template-like, but not bad for something like this”.',
     ],
   },
 ];
@@ -124,8 +120,6 @@ export interface Usage {
   tokens: { input: number; cache_write_5m: number; cache_write_1h: number; cache_read: number; output: number };
   totalTokens: number;
   costUsd: number;
-  /** True when the figures are an estimate rather than a measured transcript. */
-  estimated?: boolean;
 }
 
 export const prices = usage.prices as Record<string, Record<keyof Usage['tokens'], number>>;

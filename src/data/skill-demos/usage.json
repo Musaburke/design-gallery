@@ -98,8 +98,7 @@
       },
       "totalTokens": 2297400,
       "costUsd": 2.29,
-      "note": "Estimated for a fresh session. Measured new input and output are kept as they were; cached reading is estimated at 46 requests x about 45k tokens of context (skill, notes, brief, page code), priced like the other runs with 5-minute cache writes. Measured inside the long planning chat it was 13.5M cached reads and $5.10, inflated by that chat's history. Requests, tool calls and minutes are the main chat's only; minutes include Musa's review time.",
-      "estimated": true
+      "note": "Estimated for a fresh session. Measured new input and output are kept as they were; cached reading is estimated at 46 requests x about 45k tokens of context (skill, notes, brief, page code), priced like the other runs with 5-minute cache writes. Measured inside the long planning chat it was 13.5M cached reads and $5.10, inflated by that chat's history. Requests, tool calls and minutes are the main chat's only; minutes include review time at the check-ins."
     }
   }
 }
