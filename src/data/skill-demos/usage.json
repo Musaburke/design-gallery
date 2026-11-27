@@ -83,6 +83,22 @@
       },
       "totalTokens": 1795390,
       "costUsd": 1.72
+    },
+    "design-memory": {
+      "model": "claude-opus-5-5",
+      "requests": 46,
+      "toolCalls": 51,
+      "minutes": 18.3,
+      "tokens": {
+        "input": 178200,
+        "cache_write_5m": 0,
+        "cache_write_1h": 0,
+        "cache_read": 13457500,
+        "output": 49200
+      },
+      "totalTokens": 13684900,
+      "costUsd": 5.1,
+      "note": "Built inside a long planning chat with three check-ins with Musa, not by a fresh agent, so cached reading is inflated. Output tokens are the fair comparison. Judge runs on Sonnet are included at Opus prices. 'input' here is new input, mostly 1-hour cache writes. Requests, tool calls and minutes are the main chat's only (judge subagents not counted); minutes include Musa's review time at the check-ins."
     }
   }
 }

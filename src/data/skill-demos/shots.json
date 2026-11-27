@@ -78,5 +78,21 @@
  "impeccable-mobile": [
   780,
   1688
+ ],
+ "design-memory-desktop": [
+  2160,
+  1350
+ ],
+ "design-memory-desktop-full": [
+  2160,
+  6710
+ ],
+ "design-memory-mobile": [
+  780,
+  1688
+ ],
+ "design-memory-mobile-full": [
+  780,
+  12038
  ]
 }

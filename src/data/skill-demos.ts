@@ -93,6 +93,21 @@ export const skillDemos: SkillDemo[] = [
       'Left rough, by its own account: the hero card is half empty until you show the answer, and the FAQ snaps open while only the answer fades in.',
     ],
   },
+  {
+    id: 'design-memory',
+    name: 'Design memory',
+    skill: 'design-memory',
+    line: 'Builds from your own references and remembered taste, shows a sample that stays in the build, and is checked by a judge trained on your picks.',
+    notes: [
+      'Built differently from the others: inside a long chat with Musa, not by a fresh agent, because the skill grills the person first and shows them samples. Four questions set the brief: treat it as his own site, borrow from his AI field guide, light versus dark takes, and the note turning into cards as the one stand-out moment.',
+      'Reference: the AI field guide. Cream paper, pastel green, a dark pill for the main action, Clash Grotesk with Plus Jakarta Sans.',
+      'The hero sample was built inside the real files with a switch between a light and a dark take. Musa picked light (“feels smooth, simple but looks good with features”), the dark tokens and the switch were deleted, and the hero stayed as the final one.',
+      'Signature move: each idea in the Week 6 note lights up, then lifts out of its line and travels into its revision card, which says which line it came from.',
+      'Features are tabs with a small working preview each; the cards flip; questions open with a short height animation.',
+      'The judge (Sonnet) said “unsure” at both milestones. Its fixes for empty space, faint text and ragged card edges went in; its “too template-like” note was overruled by Musa’s own words, and he later agreed it was “a bit template-like, but not bad for something like this”.',
+      'Cost is not comparable with the others: cached reading is inflated by the long chat. Output tokens (49k) are the fair comparison.',
+    ],
+  },
 ];
 
 // Token use and API-equivalent cost of each build, written by tools/agent-usage.py
